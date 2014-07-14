@@ -14,9 +14,9 @@ namespace RTS.Entities.Client
 {
     public class ClientController : PlayerComponent<IController>, IController
     {
-        private MmoHeliosNetworkClient _client;
+        private RTSHeliosNetworkClient _client;
 
-        public ClientController(MmoHeliosNetworkClient client)
+        public ClientController(RTSHeliosNetworkClient client)
         {
             _client = client;
             _client.CommandRecieved += CommandRecieved;

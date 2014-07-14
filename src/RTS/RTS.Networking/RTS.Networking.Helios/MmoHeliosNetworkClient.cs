@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace RTS.Networking.Helios
 {
-    public class MmoHeliosNetworkClient
+    public class RTSHeliosNetworkClient
     {
         private static int _idIndex = 500;
 
@@ -21,7 +21,7 @@ namespace RTS.Networking.Helios
         public delegate void CommandRecievedEventHandler(object sender, MmoCommand command);
         public event CommandRecievedEventHandler CommandRecieved;
         public int Id { get { return _id; } }
-        public MmoHeliosNetworkClient(IConnection connection)
+        public RTSHeliosNetworkClient(IConnection connection)
         {
             _connection = connection;
             _connection.BeginReceive(_connection_Receive);//

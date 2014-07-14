@@ -9,6 +9,6 @@ namespace RTS.Entities.Requests
 {
     public class AddHeliosClientProxyActor
     {
-        public MmoHeliosNetworkClient NetworkClient { get; set; }
+        public RTSHeliosNetworkClient NetworkClient { get; set; }
     }
 }

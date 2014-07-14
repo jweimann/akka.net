@@ -41,7 +41,7 @@ namespace RTS.Entities.Client
         private void SpawnBuilding(UnitType unitType, string name, Vector3 position)
         {
             long entityId;
-            var building = _buildingFactory.GetEntity(new SpawnEntityData() { Name = unitType.ToString(), Position = position, TeamActor = this.Self, TeamId = this._teamId }, out entityId);
+            var building = _buildingFactory.GetEntity(new SpawnEntityData() { Name = unitType.ToString(), Position = position, TeamId = this._teamId }, out entityId);
 
             SpawnEntityCommand command = new SpawnEntityCommand() { Name = unitType.ToString(), Position = position, EntityId = entityId };
             var selection = _context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Player*");

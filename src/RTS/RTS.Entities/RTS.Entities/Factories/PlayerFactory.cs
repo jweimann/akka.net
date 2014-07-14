@@ -24,13 +24,13 @@ namespace RTS.Entities.Factories
         {
             List<IPlayerComponent> args = new List<IPlayerComponent>();
 
-            var client = new MmoHeliosNetworkClient(connection);
+            var client = new RTSHeliosNetworkClient(connection);
             args.Add(new ClientController(client));
             //args.Add(new Team(_context));
 
             Int64 entityId = _nextEntityId++;
 
-            Props props = new Props(Deploy.Local, typeof(Player.Player), new List<object> { _context, client, args });
+            Props props = new Props(Deploy.Local, typeof(Player.Player), new List<object> { client, args });
             ActorRef entity = _context.ActorOf(props, "Player" + entityId);
             return entity;
         }

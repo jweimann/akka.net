@@ -46,7 +46,7 @@ namespace RTS.Entities
         public Entity(Int64 entityId, List<IEntityComponent> components, SpawnEntityData data)
         {
             this.Id = entityId;
-            this.TeamActor = data.TeamActor as ActorRef;
+            this.TeamActor = Context.System.ActorSelection("user/Team" + data.TeamId).ResolveOne(TimeSpan.FromSeconds(1)).Result;// data.TeamActor as ActorRef;
             this.Position = data.Position;
             
             this._spawnEntityData = data;
