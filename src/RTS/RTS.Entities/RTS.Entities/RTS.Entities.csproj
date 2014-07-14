@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{EB475B73-76DE-43FE-9396-D22327CECAEA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>RTS.Entities</RootNamespace>
+    <AssemblyName>RTS.Entities</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'x64|AnyCPU'">
+    <OutputPath>bin\x64\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'x64|x64'">
+    <OutputPath>bin\x64\x64\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Helios">
+      <HintPath>..\..\..\..\temp\helios\helios-master\src\Helios\bin\Debug\Helios.dll</HintPath>
+    </Reference>
+    <Reference Include="Jitter">
+      <HintPath>..\..\..\Jitter Physics 0.1.7.0\Jitter\bin\Debug\Jitter.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Buildings\Building.cs" />
+    <Compile Include="Client\ClientController.cs" />
+    <Compile Include="Client\Player.cs" />
+    <Compile Include="Client\PlayerComponent.cs" />
+    <Compile Include="Client\Team.cs" />
+    <Compile Include="Controllers\AOIEntityController.cs" />
+    <Compile Include="Entity.cs" />
+    <Compile Include="Client\ClientProxyListenerActor.cs" />
+    <Compile Include="EntityComponent.cs" />
+    <Compile Include="Factories\BuildingFactory.cs" />
+    <Compile Include="Factories\IActorFactory.cs" />
+    <Compile Include="Factories\IEntityFactory.cs" />
+    <Compile Include="Factories\IPlayerFactory.cs" />
+    <Compile Include="Factories\NPCEntityFactory.cs" />
+    <Compile Include="Factories\PlayerFactory.cs" />
+    <Compile Include="Factories\TeamFactory.cs" />
+    <Compile Include="Factories\UnitFactory.cs" />
+    <Compile Include="Movement\AOI.cs" />
+    <Compile Include="Movement\EntityDebugger.cs" />
+    <Compile Include="Movement\Mover.cs" />
+    <Compile Include="Movement\NpcMover.cs" />
+    <Compile Include="Movement\RTSGroundMover.cs" />
+    <Compile Include="Npcs\NpcController.cs" />
+    <Compile Include="Player\Player.cs" />
+    <Compile Include="Player\PlayerComponent.cs" />
+    <Compile Include="Requests\AcceptClientConnectionRequest.cs" />
+    <Compile Include="Requests\AddHeliosClientProxyActor.cs" />
+    <Compile Include="Requests\BatchMoveRequest.cs" />
+    <Compile Include="Requests\DebugEntityRequest.cs" />
+    <Compile Include="Requests\DebuggerStatusRequest.cs" />
+    <Compile Include="Requests\DebuggerStatusResponse.cs" />
+    <Compile Include="Requests\EntityRequest.cs" />
+    <Compile Include="Requests\ForwardMessageToSurroundingAreasRequest.cs" />
+    <Compile Include="Requests\MoveRequest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Requests\SetBoundsRequest.cs" />
+    <Compile Include="Requests\SpawnRequest.cs" />
+    <Compile Include="Requests\UpdateRequest.cs" />
+    <Compile Include="Stats\Stats.cs" />
+    <Compile Include="Structs\EntityInfo.cs" />
+    <Compile Include="Units\Vehicle.cs" />
+    <Compile Include="Units\Weapon.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\core\Akka.Remote\Akka.Remote.csproj">
+      <Project>{ea4ff8fd-7c53-49c8-b9aa-02e458b3e6a7}</Project>
+      <Name>Akka.Remote</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\core\Akka\Akka.csproj">
+      <Project>{5deddf90-37f0-48d3-a0b0-a5cbd8a7e377}</Project>
+      <Name>Akka</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\RTS.Core\RTS.Core.csproj">
+      <Project>{746b8f98-712d-4bef-9922-ac09ccaef5ad}</Project>
+      <Name>RTS.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\RTS.Data\DataStructures\RTS.DataStructures.csproj">
+      <Project>{2c6a9e1f-87d2-4aef-b872-8abad5b16cbe}</Project>
+      <Name>RTS.DataStructures</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\RTS.Networking\RTS.Commands\RTS.Commands.csproj">
+      <Project>{6fc5ce53-9259-47ba-b038-0df100079dd2}</Project>
+      <Name>RTS.Commands</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\RTS.Networking\RTS.Networking.Helios\RTS.Networking.Helios.csproj">
+      <Project>{d6372d04-3c9c-4890-a797-671d443092b3}</Project>
+      <Name>RTS.Networking.Helios</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\RTS.Networking\RTS.Networking.Interfaces\RTS.Networking.Interfaces.csproj">
+      <Project>{a6aa7149-25c8-4dbe-ace9-98fdd7661d38}</Project>
+      <Name>RTS.Networking.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RTS.Entities.Interfaces\RTS.Entities.Interfaces.csproj">
+      <Project>{3a4143da-d595-4d8b-b0fb-341a1b91b498}</Project>
+      <Name>RTS.Entities.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\RTS.Networking\RTS.Networking\RTS.Networking.csproj">
+      <Project>{ee30c9aa-95e1-4329-9d47-86f1d6a288e3}</Project>
+      <Name>RTS.Networking</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Collections\" />
+    <Folder Include="Spawners\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
