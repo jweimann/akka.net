@@ -28,6 +28,12 @@ namespace RTS.Commands
                 }
             }
         }
+
+        public abstract Destination CommandDestination { get; }
+
+        public bool TellServer { get { return CommandDestination == Destination.Server || CommandDestination == Destination.ServerAndClient; } }
+        public bool TellClient { get { return CommandDestination == Destination.Client || CommandDestination == Destination.ServerAndClient; } }
+        
     }
 
     [Serializable]
@@ -44,10 +50,6 @@ namespace RTS.Commands
 
         public abstract Core.Enums.CommandId CommandId { get; }
 
-        public abstract Destination CommandDestination { get; }
-
-        public bool TellServer { get { return CommandDestination == Destination.Server || CommandDestination == Destination.ServerAndClient; } }
-        public bool TellClient { get { return CommandDestination == Destination.Client || CommandDestination == Destination.ServerAndClient; } }
-        
+    
     }
 }

@@ -9,26 +9,26 @@ using System.Text;
 namespace RTS.Commands.Client
 {
     [Serializable]
-    public class SetPathOnClientCommand : IEntityControllerCommand
+    public class SetPathOnClientCommand : MmoCommand<IEntityController>, IEntityControllerCommand
     {
         public long UnitId { get; set; }
         public List<Vector3> Path { get; set; }
-        public void Execute(IEntityController target)
+        public override void Execute(IEntityController target)
         {
             target.SetUnitPath(this.UnitId, this.Path);
         }
 
-        public bool CanExecute(IEntityController target)
+        public override bool CanExecute(IEntityController target)
         {
             return true;
         }
 
-        public Core.Enums.CommandId CommandId
+        public override Core.Enums.CommandId CommandId
         {
             get { return Core.Enums.CommandId.SetPathOnClient; }
         }
 
-        public Core.Enums.Destination CommandDestination
+        public override Core.Enums.Destination CommandDestination
         {
             get { return Core.Enums.Destination.Client; }
         }

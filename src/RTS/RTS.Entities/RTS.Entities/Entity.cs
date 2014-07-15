@@ -37,6 +37,7 @@ namespace RTS.Entities
         private bool _dirty;
         private DateTime _lastUpdateTime;
         private SpawnEntityData _spawnEntityData; // Keeping this with team and other info, maybe just keep this around and not have a bunch of individual vars.
+        private ActorRef _entityActorRef;
 
         public ActorRef TeamActor { get; set; } // TODO: Switch this to be the team?  Make Team an Actor?  Also using ActorRef instead of selection because selection was failing for some unknown reason.
         public Vector3 Position { get; set; }
@@ -59,6 +60,7 @@ namespace RTS.Entities
         protected override void PreStart()
         {
             _context = Context;
+            _entityActorRef = this.Self;
             //_areaOfInterestCollection = Context.System.ActorSelection("akka.tcp://MyServer@localhost:2020/user/AreaOfInterestCollection");
             
             //GetAreaOfInterest(Vector3.zero);
@@ -160,7 +162,7 @@ namespace RTS.Entities
 
         public object GetActorRef()
         {
-            return this.Self;
+            return _entityActorRef;
         }
 
         public object GetActorContext()

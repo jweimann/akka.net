@@ -1,4 +1,5 @@
 ﻿using RTS.Commands.Interfaces;
+using RTS.Entities;
 using RTS.Entities.Interfaces.EntityComponents;
 using RTS.Entities.Interfaces.UnitTypes;
 using System;
@@ -9,27 +10,27 @@ using System.Text;
 namespace RTS.Commands.Units
 {
     [Serializable]
-    public class SetTargetCommand : MmoCommand, IEntityTargeterCommand, IVehicleCommand
+    public class SetTargetCommand : MmoCommand<IEntityTargeter>, IEntityTargeterCommand, IVehicleCommand
     {
         public List<long> EntityIds { get; set; }
         public long TargetEntityId { get; set; }
 
-        public void Execute(IEntityTargeter target)
+        public override void Execute(IEntityTargeter target)
         {
             target.SetTarget(TargetEntityId);
         }
 
-        public bool CanExecute(IEntityTargeter target)
+        public override bool CanExecute(IEntityTargeter target)
         {
             return true;
         }
 
-        public Core.Enums.CommandId CommandId
+        public override Core.Enums.CommandId CommandId
         {
             get { return Core.Enums.CommandId.AttackUnit; }
         }
 
-        public Core.Enums.Destination CommandDestination
+        public override Core.Enums.Destination CommandDestination
         {
             get { return Core.Enums.Destination.Server; }
         }

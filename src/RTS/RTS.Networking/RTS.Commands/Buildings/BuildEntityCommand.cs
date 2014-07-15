@@ -12,7 +12,7 @@ using System.Text;
 namespace RTS.Commands.Buildings
 {
     [Serializable]
-    public class BuildEntityCommand : MmoCommand<IBuilding>
+    public class BuildEntityCommand : MmoCommand<IBuilding>, IBuildingCommand
     {
         public long BuildingEntityId { get; set; }
         public string Name { get; set; }

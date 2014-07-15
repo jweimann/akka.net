@@ -6,8 +6,7 @@ using System.Text;
 
 namespace RTS.Commands.Interfaces
 {
-    public interface IVehicleCommand : IMmoCommand<IVehicle>
+    public interface IBuildingCommand : IMmoCommand<IBuilding>
     {
-        List<long> EntityIds { get; set; }
     }
 }

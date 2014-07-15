@@ -2,8 +2,10 @@
 using RTS.Commands;
 using RTS.Commands.Interfaces;
 using RTS.Entities.Interfaces.Control;
+using RTS.Entities.Interfaces.EntityComponents;
 using RTS.Entities.Interfaces.Player;
 using RTS.Entities.Interfaces.Teams;
+using RTS.Entities.Interfaces.UnitTypes;
 using RTS.Networking.Helios;
 using System;
 using System.Collections.Generic;
@@ -43,11 +45,22 @@ namespace RTS.Entities.Player
             }
             if (command is IEntityTargeterCommand)
             {
-                if (((MmoCommand<IEntityComponent>)command).TellClient)
+                if (((MmoCommand<IEntityTargeter>)command).TellClient)
                 {
-                    _client.SendCommand(command as MmoCommand<IEntityComponent>);
+                    _client.SendCommand(command as MmoCommand<IEntityTargeter>);
                 }
-                else if (((MmoCommand<IEntityComponent>)command).TellServer)
+                else if (((MmoCommand<IEntityTargeter>)command).TellServer)
+                {
+                    _team.Tell(command);
+                }
+            }
+            if (command is IBuildingCommand)
+            {
+                if (((MmoCommand<IBuilding>)command).TellClient)
+                {
+                    _client.SendCommand(command as MmoCommand<IBuilding>);
+                }
+                if (((MmoCommand<IBuilding>)command).TellServer)
                 {
                     _team.Tell(command);
                 }
@@ -58,7 +71,18 @@ namespace RTS.Entities.Player
                 {
                     _client.SendCommand(command as MmoCommand<IEntityController>);
                 }
-                else if (((MmoCommand<IEntityController>)command).TellServer)
+                if (((MmoCommand<IEntityController>)command).TellServer)
+                {
+                    _team.Tell(command);
+                }
+            }
+            if (command is IVehicleCommand)
+            {
+                if (((MmoCommand)command).TellClient)
+                {
+                    _client.SendCommand(command as MmoCommand<IVehicle>);
+                }
+                if (((MmoCommand)command).TellServer)
                 {
                     _team.Tell(command);
                 }
