@@ -1,4 +1,6 @@
 ﻿using Akka.Actor;
+using RTS.Commands.Interfaces;
+using RTS.Commands.Stats;
 using RTS.Core.Enums;
 using RTS.Core.Structs;
 using RTS.Entities.Interfaces;
@@ -14,7 +16,7 @@ namespace RTS.Entities.Units
     public class Weapon : IWeapon
     {
         //private ActorRef _targetActorRef; // Using _targetEntity not sure why this was still here.
-        private float _attackRange = 8f;
+        private float _attackRange = 12f;
         private float _reloadTimer = 0f;
         private float _fireRate = 1f;
         private IEntity _entity;
@@ -42,7 +44,20 @@ namespace RTS.Entities.Units
 
         public void HandleMessage(object message)
         {
-            //throw new NotImplementedException();
+            if (message is IMmoCommand<IWeapon>)
+            {
+                if ((message as IMmoCommand<IWeapon>).CanExecute(this))
+                {
+                    (message as IMmoCommand<IWeapon>).Execute(this);
+                }
+            }
+            if (message is IMmoCommand<IEntityTargeter>)
+            {
+                if ((message as IMmoCommand<IEntityTargeter>).CanExecute(this))
+                {
+                    (message as IMmoCommand<IEntityTargeter>).Execute(this);
+                }
+            }
         }
 
         public void Update(double deltaTime)
@@ -62,6 +77,7 @@ namespace RTS.Entities.Units
                     if (this.InRange(_spawnEntityData.Position))
                     {
                         _reloadTimer = _fireRate;
+                        _targetEntity.Tell(new ModifyStatCommand() { Amount = this._damage, StatId = StatId.HP });
                         Console.WriteLine("Fired!!!!!!");
                     }
                 }
@@ -78,8 +94,10 @@ namespace RTS.Entities.Units
         private long _targetEntityId;
         private ActorRef _targetEntity;
         private long _targetEntityTeam;
+        private int _damage = -10;
         public async void SetTarget(long entityId)
         {
+            Console.WriteLine("SetTarget EntityId: " + entityId);
             var actorRef = await GetEntityById(entityId);
             long targetTeam = await actorRef.Ask<long>(EntityRequest.GetTeam);
             if (targetTeam == _entity.GetSpawnEntityData().TeamId)

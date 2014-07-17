@@ -4,6 +4,7 @@ using RTS.Commands;
 using RTS.Commands.Buildings;
 using RTS.Commands.Client;
 using RTS.Commands.Server;
+using RTS.Commands.Team;
 using RTS.Commands.Units;
 using RTS.Core.Structs;
 using RTS.Entities;
@@ -256,7 +257,8 @@ akka {
                 typeof(BuildEntityCommand),
                 typeof(MoveUnitsCommand),
                 typeof(SetPathOnClientCommand),
-                typeof(SetTargetCommand)
+                typeof(SetTargetCommand),
+                typeof(DestroyEntityCommand)
             };
             NetSerializer.Serializer.Initialize(serializerTypes);
         }

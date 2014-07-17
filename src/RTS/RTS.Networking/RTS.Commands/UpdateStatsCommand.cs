@@ -37,7 +37,7 @@ namespace RTS.Commands
 
         public override Destination CommandDestination
         {
-            get { return Destination.ServerAndClient; }
+            get { return Destination.Client; }
         }
     }
 }

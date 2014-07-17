@@ -20,6 +20,6 @@ namespace RTS.Entities.Interfaces
         object GetActorContext();
         void MessageTeam(object message);
         SpawnEntityData GetSpawnEntityData();
-
+        void Destroy();
     }
 }

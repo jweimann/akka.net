@@ -4,6 +4,7 @@ using RTS.Commands.Interfaces;
 using RTS.Entities.Interfaces.Control;
 using RTS.Entities.Interfaces.EntityComponents;
 using RTS.Entities.Interfaces.Player;
+using RTS.Entities.Interfaces.Stats;
 using RTS.Entities.Interfaces.Teams;
 using RTS.Entities.Interfaces.UnitTypes;
 using RTS.Networking.Helios;
@@ -87,7 +88,25 @@ namespace RTS.Entities.Player
                     _team.Tell(command);
                 }
             }
-            
+            if (command is UpdateStatsCommand)
+            {
+                if (((MmoCommand)command).TellClient)
+                {
+                    _client.SendCommand(command as MmoCommand<IStats>);
+                }
+                if (((MmoCommand)command).TellServer)
+                {
+                    _team.Tell(command);
+                }
+            }
+            if (command is MmoCommand<ITeam>)
+            {
+                if (((MmoCommand)command).TellClient)
+                {
+                    _client.SendCommand(command as MmoCommand<ITeam>);
+                }
+               
+            }
         }
 
         public void MessageComponents(object message)

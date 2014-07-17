@@ -65,26 +65,46 @@ namespace RTS.Entities.Units
 
         public async void Update(double deltaTime)
         {
-            if (_path.Count > 0)
+            if (PathIsSet())
             {
-                float distance = Vector3.Distance(_entity.Position, _path[0]);
-                if (distance > GetMoveThreshold())
-                {
-                    Vector3 direction = (_path[0] - _entity.Position).Normalized();
-                    _entity.Position += direction * _speed * deltaTime;
-                }
-                else
-                {
-                    _path.RemoveAt(0); // Reached this point, remove it.
-                }
+                MoveAlongPath(deltaTime);
             }
 
-            if (_targetEntityId != 0)
+            if (TargetIsSet())
             {
-                Vector3 targetPosition = await GetTargetEntityPosition();
-                var destinationPosition = Vector3.LerpByDistance(targetPosition, this._entity.Position, GetMoveThreshold());
-                MoveToPosition(destinationPosition);
+                await MoveToTargetedPosition();
             }
+        }
+
+        private void MoveAlongPath(double deltaTime)
+        {
+            float distance = Vector3.Distance(_entity.Position, _path[0]);
+            if (distance > GetMoveThreshold())
+            {
+                Vector3 direction = (_path[0] - _entity.Position).Normalized();
+                _entity.Position += direction * _speed * deltaTime;
+            }
+            else
+            {
+                _path.RemoveAt(0); // Reached this point, remove it.
+            }
+        }
+
+        private bool PathIsSet()
+        {
+            return _path.Count > 0;
+        }
+
+        private bool TargetIsSet()
+        {
+            return _targetEntityId != 0;
+        }
+
+        private async Task MoveToTargetedPosition()
+        {
+            Vector3 targetPosition = await GetTargetEntityPosition();
+            var destinationPosition = Vector3.LerpByDistance(targetPosition, this._entity.Position, GetMoveThreshold());
+            MoveToPosition(destinationPosition);
         }
 
         private float GetMoveThreshold()

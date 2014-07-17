@@ -29,5 +29,7 @@ namespace RTS.Core.Enums
         SetPathOnClient,
         AttackUnit,
         PlayerJoined,
+        ModifyStat,
+        DestroyEntity,
     }
 }

@@ -32,6 +32,7 @@ namespace RTS.Entities.Factories
             List<IEntityComponent> components = new List<IEntityComponent>();
             components.Add(new Vehicle());
             components.Add(new Weapon());
+            components.Add(new Stats.Stats());
             Props props = new Props(Deploy.Local, typeof(Entity), new List<object> { entityId, components, data });
             ActorRef entity = _context.ActorOf(props, "Entity" + entityId);
 

@@ -25,6 +25,7 @@ using RTS.Commands.Units;
 using RTS.Commands.Client;
 using RTS.Core.Enums;
 using RTS.Entities.Interfaces.EntityComponents;
+using RTS.Commands.Team;
 
 namespace RTS.Entities
 {
@@ -231,6 +232,11 @@ namespace RTS.Entities
         public SpawnEntityData GetSpawnEntityData()
         {
             return _spawnEntityData;
+        }
+
+        public void Destroy()
+        {
+            TeamActor.Tell(new DestroyEntityCommand() { EntityId = this.Id });
         }
     }
 }

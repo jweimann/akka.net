@@ -10,5 +10,6 @@ namespace RTS.Entities.Interfaces.Stats
     {
         void TakeDamage(int damage);
         void SetStat(StatId statId, int value);
+        int GetStat(StatId statId);
     }
 }

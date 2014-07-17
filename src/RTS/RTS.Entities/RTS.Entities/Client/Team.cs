@@ -2,12 +2,14 @@
 using RTS.Commands;
 using RTS.Commands.Buildings;
 using RTS.Commands.Interfaces;
+using RTS.Commands.Team;
 using RTS.Commands.Units;
 using RTS.Core.Enums;
 using RTS.Core.Structs;
 using RTS.Entities.Buildings;
 using RTS.Entities.Factories;
 using RTS.Entities.Interfaces.Control;
+using RTS.Entities.Interfaces.Stats;
 using RTS.Entities.Interfaces.Teams;
 using RTS.Entities.Interfaces.UnitTypes;
 using RTS.Entities.Structs;
@@ -76,6 +78,10 @@ namespace RTS.Entities.Client
             else if (message is BuildEntityCommand)
             {
                 var msg = message as BuildEntityCommand;
+                if (EntityActors.ContainsKey(msg.BuildingEntityId) == false)
+                {
+                    return; // Not my vehicle.  TODO: Log an error/cheat attempt?
+                }
                 var buildingActor = EntityActors[msg.BuildingEntityId] as ActorRef; //TODO: Will throw if you try to use the wrong team, needs to do checks here or before to make sure the entity is mine.
 
                 buildingActor.Tell(message);
@@ -107,9 +113,23 @@ namespace RTS.Entities.Client
                     }
                 }
             }
-
+            if (message is UpdateStatsCommand)
+            {
+                if ((message as IMmoCommand<IStats>).CommandDestination != Destination.Server)
+                {
+                    SendCommandToAllPlayers(message);
+                }
+            }
           
         }
+
+        private void SendCommandToAllPlayers(object message)
+        {
+            var selection = _context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Player*");
+            selection.Tell(message);
+        }
+
+  
 
         public void Update()
         {
@@ -244,5 +264,12 @@ namespace RTS.Entities.Client
         }
 
 
+
+
+        public void DestroyEntity(long entityId)
+        {
+            this.EntityActors.Remove(entityId);
+            SendCommandToAllPlayers(new DestroyEntityCommand() { EntityId = entityId });
+        }
     }
 }

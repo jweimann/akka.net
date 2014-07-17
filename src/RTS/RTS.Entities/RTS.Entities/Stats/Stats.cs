@@ -12,9 +12,10 @@ using System.Threading.Tasks;
 
 namespace RTS.Entities.Stats
 {
-    public class Stats : EntityComponent<IStats>, IStats
+    public class Stats : IStats
     {
         private bool _dirty;
+        private IEntity _entity;
         private Dictionary<StatId, int> _stats = new Dictionary<StatId, int>();
         public int HP { get; private set; }
         
@@ -23,32 +24,39 @@ namespace RTS.Entities.Stats
             HP = 127;
             _stats.Add(StatId.HP, HP);
             _stats.Add(StatId.Mana, 45);
+            _dirty = true;
         }
-        public override void HandleMessage(object message)
+        public void HandleMessage(object message)
         {
             IMmoCommand<IStats> command = message as IMmoCommand<IStats>;
             if (command != null)
             {
-                DamageEntityCommand damageEntityCommand = command as DamageEntityCommand;
-                if (damageEntityCommand != null)
+                if (command.CanExecute(this))
                 {
-                    if (damageEntityCommand.EntityId == _entity.Id)
-                    {
-                        if (command.CanExecute(this))
-                        {
-                            command.Execute(this);
-                        }
-                    }
+                    command.Execute(this);
                 }
+                //DamageEntityCommand damageEntityCommand = command as DamageEntityCommand;
+                //if (damageEntityCommand != null)
+                //{
+                //    if (damageEntityCommand.EntityId == _entity.Id)
+                //    {
+                //        if (command.CanExecute(this))
+                //        {
+                //            command.Execute(this);
+                //        }
+                //    }
+                //}
             }
         }
 
-        public override void Update(double deltaTime)
+        public void Update(double deltaTime)
         {
             if (_dirty)
             {
                 _dirty = false;
-                AreaOfInterest.Tell(new UpdateStatsCommand() { StatIds = new StatId[] { StatId.HP }, Values = new int[] { this.HP }, EntityId = _entity.Id });
+                _entity.MessageTeam(new UpdateStatsCommand() { StatIds = new StatId[] { StatId.HP }, Values = new int[] { this.GetStat(StatId.HP) }, EntityId = _entity.Id });
+
+                //AreaOfInterest.Tell(new UpdateStatsCommand() { StatIds = new StatId[] { StatId.HP }, Values = new int[] { this.HP }, EntityId = _entity.Id });
             }
         }
 
@@ -65,13 +73,52 @@ namespace RTS.Entities.Stats
 
         public void SetStat(StatId statId, int value)
         {
-            throw new NotImplementedException(); // Only used on client atm.. will update a dictionary of stats eventually.
+            if (_stats.ContainsKey(statId) == false)
+                return;
+
+            _stats[statId] = value;
+
+            CheckHP();
+
+            _dirty = true;
+        }
+
+        private void CheckHP()
+        {
+            if (GetStat(StatId.HP) <= 0)
+            {
+                _entity.Destroy();
+            }
         }
 
         public UpdateStatsCommand GetUpdateStatsCommand()
         {
             UpdateStatsCommand command = new UpdateStatsCommand() { EntityId = this._entity.Id, StatIds = _stats.Keys.ToArray(), Values = _stats.Values.ToArray() };
             return command;
+        }
+
+        public void MessageComponents(object message)
+        {
+            //throw new NotImplementedException();
+        }
+
+        public void SetEntity(IEntity entity)
+        {
+            _entity = entity;
+        }
+
+        public void PreStart()
+        {
+            //throw new NotImplementedException();
+        }
+
+
+        public int GetStat(StatId statId)
+        {
+            if (_stats.ContainsKey(statId) == false)
+                return 0;
+
+            return _stats[statId];
         }
     }
 }
