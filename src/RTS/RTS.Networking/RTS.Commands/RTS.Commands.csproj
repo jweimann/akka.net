@@ -95,6 +95,7 @@
     <Compile Include="CommandProperties.cs" />
     <Compile Include="EntitiesInAreaListCommand.cs" />
     <Compile Include="Interfaces\IBuildingCommand.cs" />
+    <Compile Include="Interfaces\IEntityComponentCommand.cs" />
     <Compile Include="Interfaces\IEntityControllerCommand.cs" />
     <Compile Include="Interfaces\IEntityTargeterCommand.cs" />
     <Compile Include="Interfaces\IPlayerCommand.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Units\SetTargetCommand.cs" />
     <Compile Include="Units\MoveUnitsCommand.cs" />
     <Compile Include="UpdateStatsCommand.cs" />
+    <Compile Include="Weapons\FireWeaponCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\RTS.Core\RTS.Core.csproj">

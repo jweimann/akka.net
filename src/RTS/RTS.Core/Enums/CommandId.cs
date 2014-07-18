@@ -31,5 +31,6 @@ namespace RTS.Core.Enums
         PlayerJoined,
         ModifyStat,
         DestroyEntity,
+        FireWeapon,
     }
 }

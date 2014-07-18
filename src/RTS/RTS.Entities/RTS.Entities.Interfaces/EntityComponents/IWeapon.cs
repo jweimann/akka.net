@@ -10,5 +10,6 @@ namespace RTS.Entities.Interfaces.EntityComponents
     {
         bool ReadyToFire();
         bool InRange(Vector3 targetPosition);
+        void FireWeapon(long WeaponEntityId, long TargetEntityId);
     }
 }

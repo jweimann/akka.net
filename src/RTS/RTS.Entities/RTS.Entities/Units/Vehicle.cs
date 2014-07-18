@@ -21,8 +21,8 @@ namespace RTS.Entities.Units
     {
         private IEntity _entity;
         private List<Vector3> _path;
-        private float _moveThreshhold = 1f;
-        private float _attackRange = 5f;
+        private float _moveThreshhold = 24f;
+        private float _attackRange = 25f;
         private float _speed = 5f;
 
         public Vehicle()

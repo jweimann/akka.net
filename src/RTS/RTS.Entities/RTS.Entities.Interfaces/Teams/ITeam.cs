@@ -16,5 +16,6 @@ namespace RTS.Entities.Interfaces.Teams
         void HandlePlayerJoined(object PlayerActor);
 
         void DestroyEntity(long p);
+
     }
 }

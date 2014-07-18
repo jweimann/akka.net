@@ -113,9 +113,9 @@ namespace RTS.Entities.Client
                     }
                 }
             }
-            if (message is UpdateStatsCommand)
+            if (message is UpdateStatsCommand || message is RTS.Commands.Weapons.FireWeaponCommand)
             {
-                if ((message as IMmoCommand<IStats>).CommandDestination != Destination.Server)
+                if ((message as MmoCommand).CommandDestination != Destination.Server)
                 {
                     SendCommandToAllPlayers(message);
                 }
@@ -271,5 +271,7 @@ namespace RTS.Entities.Client
             this.EntityActors.Remove(entityId);
             SendCommandToAllPlayers(new DestroyEntityCommand() { EntityId = entityId });
         }
+
+
     }
 }

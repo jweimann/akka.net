@@ -99,6 +99,17 @@ namespace RTS.Entities.Player
                     _team.Tell(command);
                 }
             }
+            if (command is MmoCommand<IWeapon>)
+            {
+                if (((MmoCommand)command).TellClient)
+                {
+                    _client.SendCommand(command as MmoCommand<IWeapon>);
+                }
+                if (((MmoCommand)command).TellServer)
+                {
+                    _team.Tell(command);
+                }
+            }
             if (command is MmoCommand<ITeam>)
             {
                 if (((MmoCommand)command).TellClient)

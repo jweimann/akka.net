@@ -1,6 +1,8 @@
 ﻿using Akka.Actor;
 using RTS.Commands.Interfaces;
 using RTS.Commands.Stats;
+using RTS.Commands.Units;
+using RTS.Commands.Weapons;
 using RTS.Core.Enums;
 using RTS.Core.Structs;
 using RTS.Entities.Interfaces;
@@ -16,7 +18,7 @@ namespace RTS.Entities.Units
     public class Weapon : IWeapon
     {
         //private ActorRef _targetActorRef; // Using _targetEntity not sure why this was still here.
-        private float _attackRange = 12f;
+        private float _attackRange = 25f;
         private float _reloadTimer = 0f;
         private float _fireRate = 1f;
         private IEntity _entity;
@@ -72,16 +74,23 @@ namespace RTS.Entities.Units
             {
                 if (this.ReadyToFire())
                 {
-                    _spawnEntityData = await _targetEntity.Ask<SpawnEntityData>(EntityRequest.GetSpawnData);
-
-                    if (this.InRange(_spawnEntityData.Position))
-                    {
+                    var targetPosition = await GetTargetEntityPosition();
+                    
+                    if (this.InRange(targetPosition))
+                    { 
                         _reloadTimer = _fireRate;
+                        _entity.MessageTeam(new FireWeaponCommand() { TargetEntityId = _targetEntityId, EntityId = this._entity.Id });
                         _targetEntity.Tell(new ModifyStatCommand() { Amount = this._damage, StatId = StatId.HP });
                         Console.WriteLine("Fired!!!!!!");
                     }
                 }
             }
+        }
+        private async Task<Vector3> GetTargetEntityPosition()
+        {
+            Vector3 position = await _targetEntity.Ask<Vector3>(new GetPositionCommand());
+            //Console.WriteLine("Retrieved Position for Entity " + _targetEntityId + " Position " + position.ToString() + " MyPosition " + _entity.Position.ToString());
+            return position;
         }
 
         public void PreStart()
@@ -122,5 +131,11 @@ namespace RTS.Entities.Units
             return actorRef;
         }
         #endregion
+
+
+        public void FireWeapon(long WeaponEntityId, long TargetEntityId) // Client Command?
+        {
+            throw new NotImplementedException();
+        }
     }
 }

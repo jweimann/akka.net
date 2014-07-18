@@ -238,5 +238,7 @@ namespace RTS.Entities
         {
             TeamActor.Tell(new DestroyEntityCommand() { EntityId = this.Id });
         }
+
+
     }
 }
