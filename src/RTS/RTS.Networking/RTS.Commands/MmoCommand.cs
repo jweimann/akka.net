@@ -50,6 +50,18 @@ namespace RTS.Commands
 
         public abstract Core.Enums.CommandId CommandId { get; }
 
-    
+
+
+        public T Target
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }

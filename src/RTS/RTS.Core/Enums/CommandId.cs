@@ -19,7 +19,6 @@ namespace RTS.Core.Enums
         JoinAreaOfInterestCommand,
         SetBounds,
         SendMovementToAOI,
-        AOIDetailsCommand,
         SetDestination,
         BuildEntity,
         FinishBuildEntity,

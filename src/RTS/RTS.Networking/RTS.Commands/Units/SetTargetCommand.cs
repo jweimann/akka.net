@@ -10,9 +10,9 @@ using System.Text;
 namespace RTS.Commands.Units
 {
     [Serializable]
-    public class SetTargetCommand : MmoCommand<IEntityTargeter>, IEntityTargeterCommand, IVehicleCommand
+    public class SetTargetCommand : MmoCommand<IEntityTargeter>, IEntityTargeterCommand, IEntityComponentCommand//, IVehicleCommand
     {
-        public List<long> EntityIds { get; set; }
+        //public List<long> EntityIds { get; set; }
         public long TargetEntityId { get; set; }
 
         public override void Execute(IEntityTargeter target)
@@ -56,5 +56,9 @@ namespace RTS.Commands.Units
         {
             return false;
         }
+
+
+
+        public long EntityId { get; set; }
     }
 }

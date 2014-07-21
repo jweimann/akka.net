@@ -10,7 +10,6 @@ using RTS.Commands.Weapons;
 using RTS.Core.Structs;
 using RTS.Entities;
 using RTS.Entities.Client;
-using RTS.Entities.Controllers;
 using RTS.Entities.Factories;
 using RTS.Entities.Interfaces;
 using RTS.Entities.Interfaces.Stats;
@@ -247,13 +246,9 @@ akka {
                 typeof(Vector3), 
                 typeof(MoveCommand), 
                 typeof(MmoCommand), 
-                typeof(BatchMoveCommand), 
                 typeof(DamageEntityCommand),
                 typeof(UpdateStatsCommand),
                 typeof(SpawnEntityCommand),
-                typeof(EntitiesInAreaListCommand),
-                typeof(LeaveAreaOfInterestCommand),
-                typeof(AOIDetailsCommand),
                 typeof(SetDestinationCommand),
                 typeof(BuildEntityCommand),
                 typeof(MoveUnitsCommand),

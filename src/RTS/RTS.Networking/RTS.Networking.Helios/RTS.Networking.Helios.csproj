@@ -84,6 +84,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\RTS.Commands.Interfaces\RTS.Commands.Interfaces.csproj">
+      <Project>{3c16668d-86d0-424b-97ab-af5868b6943e}</Project>
+      <Name>RTS.Commands.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RTS.Commands\RTS.Commands.csproj">
       <Project>{6fc5ce53-9259-47ba-b038-0df100079dd2}</Project>
       <Name>RTS.Commands</Name>

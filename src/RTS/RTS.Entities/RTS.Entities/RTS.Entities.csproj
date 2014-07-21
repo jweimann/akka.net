@@ -89,7 +89,6 @@
     <Compile Include="Client\Player.cs" />
     <Compile Include="Client\PlayerComponent.cs" />
     <Compile Include="Client\Team.cs" />
-    <Compile Include="Controllers\AOIEntityController.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="Client\ClientProxyListenerActor.cs" />
     <Compile Include="EntityComponent.cs" />
@@ -119,7 +118,6 @@
     <Compile Include="Requests\ForwardMessageToSurroundingAreasRequest.cs" />
     <Compile Include="Requests\MoveRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Requests\SetBoundsRequest.cs" />
     <Compile Include="Requests\SpawnRequest.cs" />
     <Compile Include="Requests\UpdateRequest.cs" />
     <Compile Include="Stats\Stats.cs" />
@@ -135,6 +133,10 @@
     <ProjectReference Include="..\..\..\core\Akka\Akka.csproj">
       <Project>{5deddf90-37f0-48d3-a0b0-a5cbd8a7e377}</Project>
       <Name>Akka</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\RTS.Commands.Interfaces\RTS.Commands.Interfaces.csproj">
+      <Project>{3c16668d-86d0-424b-97ab-af5868b6943e}</Project>
+      <Name>RTS.Commands.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\RTS.Core\RTS.Core.csproj">
       <Project>{746b8f98-712d-4bef-9922-ac09ccaef5ad}</Project>
@@ -167,6 +169,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Collections\" />
+    <Folder Include="Controllers\" />
     <Folder Include="Spawners\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

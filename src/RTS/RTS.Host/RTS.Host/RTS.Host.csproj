@@ -106,6 +106,10 @@
       <Project>{5deddf90-37f0-48d3-a0b0-a5cbd8a7e377}</Project>
       <Name>Akka</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\RTS.Commands.Interfaces\RTS.Commands.Interfaces.csproj">
+      <Project>{3c16668d-86d0-424b-97ab-af5868b6943e}</Project>
+      <Name>RTS.Commands.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\RTS.Core\RTS.Core.csproj">
       <Project>{746b8f98-712d-4bef-9922-ac09ccaef5ad}</Project>
       <Name>OpenMmo.Core</Name>

@@ -10,5 +10,7 @@ namespace RTS.Entities.Interfaces.UnitTypes
     public interface IVehicle : IEntityTargeter
     {
         void MoveToPosition(Vector3 position);
+
+        void SetPath(List<Vector3> list);
     }
 }

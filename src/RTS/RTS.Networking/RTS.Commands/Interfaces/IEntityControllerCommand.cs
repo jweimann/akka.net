@@ -10,5 +10,6 @@ namespace RTS.Commands.Interfaces
     {
         //object Sender { get; set; }
         //int AoiId { get; set; }
+
     }
 }

@@ -45,11 +45,13 @@ namespace RTS.Entities
         public ActorSelection AreaOfInterest { get; set; }
         public Int64 Id { get; protected set; }
         List<IEntityComponent> IEntity.Components { get { return _components; } }
+        public bool IsAlive { get; set; }
         public Entity(Int64 entityId, List<IEntityComponent> components, SpawnEntityData data)
         {
             this.Id = entityId;
             this.TeamActor = Context.System.ActorSelection("user/Team" + data.TeamId).ResolveOne(TimeSpan.FromSeconds(1)).Result;// data.TeamActor as ActorRef;
             this.Position = data.Position;
+            this.IsAlive = true;
             
             this._spawnEntityData = data;
             
@@ -186,6 +188,9 @@ namespace RTS.Entities
                             Sender.Tell(data);
                         }
                         break;
+                    case EntityRequest.GetIsAlive:
+                        Sender.Tell(this.IsAlive);
+                        break;
                 }
             }
 
@@ -236,9 +241,12 @@ namespace RTS.Entities
 
         public void Destroy()
         {
+            this.IsAlive = false;
             TeamActor.Tell(new DestroyEntityCommand() { EntityId = this.Id });
         }
 
 
+
+        
     }
 }

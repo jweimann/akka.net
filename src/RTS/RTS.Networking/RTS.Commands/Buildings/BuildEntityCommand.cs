@@ -34,5 +34,25 @@ namespace RTS.Commands.Buildings
         {
             return target.CanBuild(new UnitDefinition() { UnitType = this.UnitTypeId });
         }
+
+        CommandId IMmoCommand<IBuilding>.CommandId
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        Destination IMmoCommand<IBuilding>.CommandDestination
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        void IMmoCommand<IBuilding>.Execute(IBuilding target)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool IMmoCommand<IBuilding>.CanExecute(IBuilding target)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

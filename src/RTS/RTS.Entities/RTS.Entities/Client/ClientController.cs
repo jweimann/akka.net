@@ -64,45 +64,7 @@ namespace RTS.Entities.Client
 
         }
 
-        public void HandleRequest2(object request)
-        {
-            MoveRequest moveRequest = request as MoveRequest;
-            if (moveRequest != null)
-            {
-                _client.SendCommand(new MoveCommand() { EntityId = moveRequest.EntityId, Velocity = moveRequest.Velocity, Position = moveRequest.Position });
-            }
-
-            BatchMoveRequest batchMoveRequest = request as BatchMoveRequest;
-            if (batchMoveRequest != null)
-            {
-                _client.SendCommand(new BatchMoveCommand() { EntityId = batchMoveRequest.EntityId, Velocity = batchMoveRequest.Velocity, Position = batchMoveRequest.Position });
-            }
-
-            UpdateStatsCommand command = request as UpdateStatsCommand;
-            if (command != null)
-            {
-                _client.SendCommand(command);
-            }
-
-            EntitiesInAreaListCommand entitiesCommand = request as EntitiesInAreaListCommand;
-            if (entitiesCommand != null)
-            {
-                _client.SendCommand(entitiesCommand);
-            }
-
-            LeaveAreaOfInterestCommand leaveCommand = request as LeaveAreaOfInterestCommand;
-            if (leaveCommand != null)
-            {
-                _client.SendCommand(leaveCommand);
-            }
-
-            AOIDetailsCommand aoiCommand = request as AOIDetailsCommand;
-            if (aoiCommand != null)
-            {
-                _client.SendCommand(aoiCommand);
-            }
-        }
-
+   
         public override void Update()
         {
 

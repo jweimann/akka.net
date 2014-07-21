@@ -31,5 +31,15 @@ namespace RTS.Commands.Server
         {
             get { return Core.Enums.Destination.Server; }
         }
+
+        public bool TellClient
+        {
+            get { return false; }
+        }
+
+        public bool TellServer
+        {
+            get { return true; }
+        }
     }
 }

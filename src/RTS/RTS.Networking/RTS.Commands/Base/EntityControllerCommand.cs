@@ -24,5 +24,9 @@ namespace RTS.Commands.Base
             return this.GetType().ToString() + " AoiId: " + AoiId;
         }
         public Destination CommandDestination { get; set; }
+
+
+        public abstract bool TellClient { get; }
+        public abstract bool TellServer { get; }
     }
 }

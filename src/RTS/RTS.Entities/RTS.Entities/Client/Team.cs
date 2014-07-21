@@ -2,8 +2,10 @@
 using RTS.Commands;
 using RTS.Commands.Buildings;
 using RTS.Commands.Interfaces;
+using RTS.Commands.Server;
 using RTS.Commands.Team;
 using RTS.Commands.Units;
+using RTS.Commands.Weapons;
 using RTS.Core.Enums;
 using RTS.Core.Structs;
 using RTS.Entities.Buildings;
@@ -68,6 +70,7 @@ namespace RTS.Entities.Client
 
         public void HandleMessage(object message)
         {
+            Console.WriteLine("Team recieved message" + message.ToString());
             if (message is IMmoCommand<ITeam>)
             {
                 if ((message as IMmoCommand<ITeam>).CanExecute(this))
@@ -101,7 +104,7 @@ namespace RTS.Entities.Client
                 }
             }
             
-            if (message is IVehicleCommand)
+            if (message is IVehicleCommand && ((IVehicleCommand)message).TellServer)
             {
                 var msg = message as IVehicleCommand;
                 foreach (var entityId in msg.EntityIds)
@@ -113,11 +116,23 @@ namespace RTS.Entities.Client
                     }
                 }
             }
-            if (message is UpdateStatsCommand || message is RTS.Commands.Weapons.FireWeaponCommand)
+            if (message is UpdateStatsCommand || message is FireWeaponCommand || message is IEntityComponentCommand)
             {
                 if ((message as MmoCommand).CommandDestination != Destination.Server)
                 {
                     SendCommandToAllPlayers(message);
+                }
+                else
+                {
+                    var msg = message as IEntityComponentCommand;
+                    if (this.EntityActors.ContainsKey(msg.EntityId))
+                    {
+                        var entityActor = this.EntityActors[msg.EntityId] as ActorRef;
+                        if (entityActor != null)
+                        {
+                            entityActor.Tell(message);
+                        }
+                    }
                 }
             }
           
@@ -218,6 +233,9 @@ namespace RTS.Entities.Client
         public void SetPlayer(object player)
         {
             this._playerActor = player as ActorRef;
+
+            var teams = Context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Team*");
+            teams.Tell(new PlayerConnectedCommand() { PlayerActor = player });
         }
 
         #region UnTypedActor
@@ -230,7 +248,7 @@ namespace RTS.Entities.Client
         {
             base.PreStart();
 
-            //Initialize(); // Player not set yet can't call until then while units are still associated with player.  Once moved to team this can be re-implemented.
+            //Initialize(); // Player not set yet can't call until then while units are still associated with player.  Once moved to tearerrm this can be re-implemented.
             _context.Scheduler.Schedule(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(100), () => Update());
         }
 
@@ -268,6 +286,12 @@ namespace RTS.Entities.Client
 
         public void DestroyEntity(long entityId)
         {
+            if (this.EntityActors.ContainsKey(entityId) == false)
+            {
+                Console.WriteLine("Tried to destroy an entity that this Team doesn't control.  It may have already been destroyed previously.");
+                return;
+            }
+            
             this.EntityActors.Remove(entityId);
             SendCommandToAllPlayers(new DestroyEntityCommand() { EntityId = entityId });
         }

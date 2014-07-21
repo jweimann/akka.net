@@ -2,7 +2,6 @@
 using RTS.Commands;
 using RTS.Commands.Interfaces;
 using RTS.Core.Constants;
-using RTS.Entities.Controllers;
 using RTS.Entities.Interfaces.Control;
 using System;
 using System.Collections.Generic;
@@ -19,7 +18,6 @@ namespace RTS.Entities.Movement
 
         protected override void PreStart()
         {
-            _entityController = new AOIEntityController();
             Context.System.Scheduler.Schedule(TimeSpan.FromMilliseconds(Constants.AOI_UPDATE_INTERVAL), TimeSpan.FromMilliseconds(Constants.AOI_UPDATE_INTERVAL), () => Update());
         }
 

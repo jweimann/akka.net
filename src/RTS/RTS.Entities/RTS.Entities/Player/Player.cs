@@ -68,11 +68,11 @@ namespace RTS.Entities.Player
             }
             if (command is IEntityControllerCommand)
             {
-                if (((MmoCommand<IEntityController>)command).TellClient)
+                if (((IEntityControllerCommand)command).TellClient)
                 {
-                    _client.SendCommand(command as MmoCommand<IEntityController>);
+                    _client.SendCommand(command as IEntityControllerCommand);
                 }
-                if (((MmoCommand<IEntityController>)command).TellServer)
+                if (((IEntityControllerCommand)command).TellServer)
                 {
                     _team.Tell(command);
                 }

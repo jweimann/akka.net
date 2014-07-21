@@ -29,6 +29,25 @@ namespace RTS.Commands.Buildings
         }
 
         public override Destination CommandDestination { get { return Core.Enums.Destination.Server; } }
-         
+
+        CommandId IMmoCommand<ITeam>.CommandId
+        {
+            get { return Core.Enums.CommandId.FinishBuildEntity; }
+        }
+
+        Destination IMmoCommand<ITeam>.CommandDestination
+        {
+            get { return Destination.Server; }
+        }
+
+        void IMmoCommand<ITeam>.Execute(ITeam target)
+        {
+            target.FinishBuildEntity(this.Name, this.Position);
+        }
+
+        bool IMmoCommand<ITeam>.CanExecute(ITeam target)
+        {
+            return true;
+        }
     }
 }

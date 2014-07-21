@@ -12,7 +12,7 @@ namespace RTS.Commands.Units
     [Serializable]
     public class MoveUnitsCommand : MmoCommand<IVehicle>, IVehicleCommand
     {
-        public List<long> EntityIds { get; set; }
+        //public List<long> EntityIds { get; set; }
         public Vector3 Position { get; set; }
 
         public override void Execute(IVehicle target)
@@ -33,7 +33,7 @@ namespace RTS.Commands.Units
 
         public override Core.Enums.Destination CommandDestination
         {
-            get { return Core.Enums.Destination.ServerAndClient; }
+            get { return Core.Enums.Destination.Server; }
         }
         public void Execute(IEntityController target)
         {
@@ -47,5 +47,32 @@ namespace RTS.Commands.Units
         {
             return false;
         }
+
+        public List<long> EntityIds { get; set; }
+
+        Core.Enums.CommandId IMmoCommand<IVehicle>.CommandId
+        {
+            get { return Core.Enums.CommandId.MoveUnits; }
+        }
+
+        Core.Enums.Destination IMmoCommand<IVehicle>.CommandDestination
+        {
+            get { return Core.Enums.Destination.ServerAndClient; }
+        }
+
+        void IMmoCommand<IVehicle>.Execute(IVehicle target)
+        {
+            foreach (long entityId in this.EntityIds)
+            {
+                target.MoveToPosition(this.Position);
+            }
+        }
+
+        bool IMmoCommand<IVehicle>.CanExecute(IVehicle target)
+        {
+            return true;
+        }
+
+        public long EntityId { get; set; }
     }
 }

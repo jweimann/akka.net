@@ -1,6 +1,7 @@
 ﻿using RTS.Commands.Interfaces;
 using RTS.Core.Structs;
 using RTS.Entities.Interfaces.Control;
+using RTS.Entities.Interfaces.UnitTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,5 +33,38 @@ namespace RTS.Commands.Client
         {
             get { return Core.Enums.Destination.Client; }
         }
+
+        //Core.Enums.CommandId IMmoCommand<IVehicle>.CommandId
+        //{
+        //    get { return Core.Enums.CommandId.SetPathOnClient; }
+        //}
+
+        //Core.Enums.Destination IMmoCommand<IVehicle>.CommandDestination
+        //{
+        //    get { return Core.Enums.Destination.Client; }
+        //}
+
+        //void IMmoCommand<IVehicle>.Execute(IVehicle target)
+        //{
+        //    target.SetPath(this.Path);
+        //}
+
+        //bool IMmoCommand<IVehicle>.CanExecute(IVehicle target)
+        //{
+        //    return true;
+        //}
+
+
+        public bool TellClient
+        {
+            get { return true; }
+        }
+
+        public bool TellServer
+        {
+            get { return false; }
+        }
+
+     
     }
 }

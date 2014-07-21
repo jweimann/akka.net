@@ -9,7 +9,7 @@ using System.Text;
 namespace RTS.Commands
 {
     [Serializable]
-    public class UpdateStatsCommand : MmoCommand<IStats>, IEntityComponentCommand
+    public class UpdateStatsCommand : MmoCommand<IStats>, IEntityComponentCommand, IMmoCommand<IStats>
     {
         public override CommandId CommandId
         {

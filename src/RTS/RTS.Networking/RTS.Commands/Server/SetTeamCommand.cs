@@ -30,5 +30,25 @@ namespace RTS.Commands.Server
         {
             get { return Core.Enums.Destination.Server; }
         }
+
+        Core.Enums.CommandId IMmoCommand<IPlayer>.CommandId
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        Core.Enums.Destination IMmoCommand<IPlayer>.CommandDestination
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        void IMmoCommand<IPlayer>.Execute(IPlayer target)
+        {
+            throw new NotImplementedException();
+        }
+
+        bool IMmoCommand<IPlayer>.CanExecute(IPlayer target)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

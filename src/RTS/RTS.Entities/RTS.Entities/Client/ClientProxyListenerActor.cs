@@ -73,6 +73,7 @@ namespace RTS.Entities.Client
             team.Tell(new SetPlayerCommand() { PlayerActor = player });
             player.Tell(new SetTeamCommand() { TeamActor = team });
 
+
             //_clientProxyCollectionActor.Tell(new AcceptClientConnectionRequest() { Connection = connection });
         }
 

@@ -18,7 +18,7 @@ namespace RTS.Entities.Units
     public class Weapon : IWeapon
     {
         //private ActorRef _targetActorRef; // Using _targetEntity not sure why this was still here.
-        private float _attackRange = 25f;
+        private float _attackRange = 65f;
         private float _reloadTimer = 0f;
         private float _fireRate = 1f;
         private IEntity _entity;
@@ -31,7 +31,8 @@ namespace RTS.Entities.Units
 
         public bool InRange(Core.Structs.Vector3 targetPosition)
         {
-            return Vector3.Distance(targetPosition, this._entity.Position) <= _attackRange;
+            float dist = Vector3.Distance(targetPosition, this._entity.Position);
+            return dist <= _attackRange;
         }
 
         public void MessageComponents(object message)
@@ -74,6 +75,13 @@ namespace RTS.Entities.Units
             {
                 if (this.ReadyToFire())
                 {
+                    bool isAlive = await GetTargetIsAlive();
+                    if (isAlive == false)
+                    {
+                        _targetEntity = null;
+                        return;
+                    }
+
                     var targetPosition = await GetTargetEntityPosition();
                     
                     if (this.InRange(targetPosition))
@@ -85,6 +93,12 @@ namespace RTS.Entities.Units
                     }
                 }
             }
+        }
+
+        private async Task<bool> GetTargetIsAlive()
+        {
+            bool isAlive = await _targetEntity.Ask<Boolean>(EntityRequest.GetIsAlive);
+            return isAlive;
         }
         private async Task<Vector3> GetTargetEntityPosition()
         {

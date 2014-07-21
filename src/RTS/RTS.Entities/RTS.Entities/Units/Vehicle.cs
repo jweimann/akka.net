@@ -24,6 +24,7 @@ namespace RTS.Entities.Units
         private float _moveThreshhold = 24f;
         private float _attackRange = 25f;
         private float _speed = 5f;
+        private Vector3 _destination;
 
         public Vehicle()
         {
@@ -31,8 +32,18 @@ namespace RTS.Entities.Units
         }
         public void MoveToPosition(Core.Structs.Vector3 position)
         {
+            if (PositionIsChanged(ref position) == false)
+            {
+                return;
+            }
+            _destination = position;
             _path = new List<Vector3>() { position };
             _entity.MessageTeam(new SetPathOnClientCommand() { Path = _path, UnitId = this._entity.Id });
+        }
+
+        private bool PositionIsChanged(ref Core.Structs.Vector3 position)
+        {
+            return _destination != position;
         }
 
         public void MessageComponents(object message)
@@ -72,8 +83,20 @@ namespace RTS.Entities.Units
 
             if (TargetIsSet())
             {
-                await MoveToTargetedPosition();
+                if (await TargetIsAlive() == false)
+                {
+                    _targetEntityId = 0;
+                }
+                else
+                {
+                    await MoveToTargetedPosition();
+                }
             }
+        }
+
+        private async Task<bool> TargetIsAlive()
+        {
+            return await _targetEntity.Ask<bool>(EntityRequest.GetIsAlive);
         }
 
         private void MoveAlongPath(double deltaTime)
@@ -159,5 +182,11 @@ namespace RTS.Entities.Units
         }
 
         #endregion
+
+
+        public void SetPath(List<Vector3> list)
+        {
+            _path = list;
+        }
     }
 }
