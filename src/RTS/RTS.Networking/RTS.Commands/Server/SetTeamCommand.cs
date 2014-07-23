@@ -7,6 +7,7 @@ using System.Text;
 
 namespace RTS.Commands.Server
 {
+    [Serializable]
     public class SetTeamCommand : MmoCommand<IPlayer>, IPlayerCommand
     {
         public object TeamActor { get; set; }
@@ -28,27 +29,27 @@ namespace RTS.Commands.Server
 
         public override Core.Enums.Destination CommandDestination
         {
-            get { return Core.Enums.Destination.Server; }
+            get { return Core.Enums.Destination.ServerAndClient; }
         }
 
         Core.Enums.CommandId IMmoCommand<IPlayer>.CommandId
         {
-            get { throw new NotImplementedException(); }
+            get { return Core.Enums.CommandId.SetTeam; }
         }
 
         Core.Enums.Destination IMmoCommand<IPlayer>.CommandDestination
         {
-            get { throw new NotImplementedException(); }
+            get { return Core.Enums.Destination.Server; } // This can't go to client, actorref can't serialize.
         }
 
         void IMmoCommand<IPlayer>.Execute(IPlayer target)
         {
-            throw new NotImplementedException();
+            target.SetTeam(this.TeamActor);
         }
 
         bool IMmoCommand<IPlayer>.CanExecute(IPlayer target)
         {
-            throw new NotImplementedException();
+            return true;
         }
     }
 }

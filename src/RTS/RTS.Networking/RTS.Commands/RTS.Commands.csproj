@@ -105,6 +105,7 @@
     <Compile Include="RequestEntityStatsCommand.cs" />
     <Compile Include="Server\PlayerConnectedCommand.cs" />
     <Compile Include="Server\SetPlayerCommand.cs" />
+    <Compile Include="Client\SetClientPlayerInfoCommand.cs" />
     <Compile Include="Server\SetTeamCommand.cs" />
     <Compile Include="SetDestinationCommand.cs" />
     <Compile Include="SpawnEntityCommand.cs" />

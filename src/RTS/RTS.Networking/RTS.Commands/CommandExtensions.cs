@@ -27,5 +27,14 @@ namespace RTS.Commands
                 return stream.ToArray();
             }
         }
+
+        public static byte[] ToBytes(this IMmoCommand command)
+        {
+            using (MemoryStream stream = new MemoryStream())
+            {
+                Serializer.Serialize(stream, command);
+                return stream.ToArray();
+            }
+        }
     }
 }

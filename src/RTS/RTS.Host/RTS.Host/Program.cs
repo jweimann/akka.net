@@ -3,6 +3,7 @@ using Akka.Configuration;
 using RTS.Commands;
 using RTS.Commands.Buildings;
 using RTS.Commands.Client;
+using RTS.Commands.Interfaces;
 using RTS.Commands.Server;
 using RTS.Commands.Team;
 using RTS.Commands.Units;
@@ -20,6 +21,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -243,20 +245,33 @@ akka {
         private static void InitializeSerializer()
         {
             var serializerTypes = new List<Type>() { 
-                typeof(Vector3), 
-                typeof(MoveCommand), 
-                typeof(MmoCommand), 
-                typeof(DamageEntityCommand),
-                typeof(UpdateStatsCommand),
-                typeof(SpawnEntityCommand),
-                typeof(SetDestinationCommand),
-                typeof(BuildEntityCommand),
-                typeof(MoveUnitsCommand),
-                typeof(SetPathOnClientCommand),
-                typeof(SetTargetCommand),
-                typeof(DestroyEntityCommand),
-                typeof(FireWeaponCommand)
+                typeof(Vector3)
+                //, 
+                //typeof(MoveCommand), 
+                //typeof(MmoCommand), 
+                //typeof(DamageEntityCommand),
+                //typeof(UpdateStatsCommand),
+                //typeof(SpawnEntityCommand),
+                //typeof(SetDestinationCommand),
+                //typeof(BuildEntityCommand),
+                //typeof(MoveUnitsCommand),
+                //typeof(SetPathOnClientCommand),
+                //typeof(SetTargetCommand),
+                //typeof(DestroyEntityCommand),
+                //typeof(FireWeaponCommand),
+                //typeof(SetTeamCommand)
             };
+
+            var assembly = Assembly.LoadFrom("RTS.Commands.dll");
+            IEnumerable<Type> myTypes = assembly.GetTypes().Where(t => t.FullName.EndsWith("Command") && t.IsSerializable == true && typeof(IMmoCommand).IsAssignableFrom(t));
+
+            foreach (var t in myTypes)
+            {
+                Console.WriteLine("Registered Command " + t.ToString());
+            }
+
+            serializerTypes.AddRange(myTypes);
+
             NetSerializer.Serializer.Initialize(serializerTypes);
         }
 

@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using RTS.Commands;
 using RTS.Commands.Buildings;
+using RTS.Commands.Client;
 using RTS.Commands.Interfaces;
 using RTS.Commands.Server;
 using RTS.Commands.Team;
@@ -42,12 +43,12 @@ namespace RTS.Entities.Client
             _unitFactory = new UnitFactory(_context);
         }
 
-        private void SpawnBuilding(UnitType unitType, string name, Vector3 position)
+        private void SpawnBuilding(UnitType unitType, string name, Vector3 position, long teamId)
         {
             long entityId;
             var building = _buildingFactory.GetEntity(new SpawnEntityData() { Name = unitType.ToString(), Position = position, TeamId = this._teamId }, out entityId);
 
-            SpawnEntityCommand command = new SpawnEntityCommand() { Name = unitType.ToString(), Position = position, EntityId = entityId };
+            SpawnEntityCommand command = new SpawnEntityCommand() { Name = unitType.ToString(), Position = position, EntityId = entityId, TeamId = teamId };
             var selection = _context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Player*");
 
             selection.Tell(command);
@@ -55,12 +56,12 @@ namespace RTS.Entities.Client
             EntityActors.Add(entityId, building);
         }
 
-        private void SpawnUnit(UnitType unitType, string name, Vector3 position)
+        private void SpawnUnit(UnitType unitType, string name, Vector3 position, long teamId)
         {
             long entityId;
             var unit = _unitFactory.GetEntity(new SpawnEntityData() { Name = unitType.ToString(), Position = position, TeamActor = this.Self, TeamId = this._teamId }, out entityId);
 
-            SpawnEntityCommand command = new SpawnEntityCommand() { Name = unitType.ToString(), Position = position, EntityId = entityId };
+            SpawnEntityCommand command = new SpawnEntityCommand() { Name = unitType.ToString(), Position = position, EntityId = entityId, TeamId = teamId };
             var selection = _context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Player*");
 
             selection.Tell(command);
@@ -158,7 +159,7 @@ namespace RTS.Entities.Client
         {
             Random rand = new Random();
             Vector3 spawnPoint = new Vector3(rand.Next(-20, 20), 0, rand.Next(-20, 20));
-            SpawnBuilding(UnitType.TruckDepot, "TruckDepot", spawnPoint);
+            SpawnBuilding(UnitType.TruckDepot, "TruckDepot", spawnPoint, this._teamId);
             _initialized = true;
         }
 
@@ -199,9 +200,9 @@ namespace RTS.Entities.Client
             throw new NotImplementedException();
         }
 
-        public void SpawnEntity(string name, Vector3 position, long entityId)
+        public void SpawnEntity(string name, Vector3 position, long entityId, long teamId)
         {
-            SpawnBuilding(UnitType.TruckDepot, name, position);
+            SpawnBuilding(UnitType.TruckDepot, name, position, teamId);
         }
 
         public void HandleRequest(object request)
@@ -215,10 +216,10 @@ namespace RTS.Entities.Client
             switch (name)
             {
                 case "Truck":
-                    SpawnUnit(UnitType.Truck, name, position);
+                    SpawnUnit(UnitType.Truck, name, position, this._teamId);
                     break;
                 case "TruckDepot":
-                    SpawnBuilding(UnitType.TruckDepot, name, position);
+                    SpawnBuilding(UnitType.TruckDepot, name, position, this._teamId);
                     break;
             }
         }

@@ -18,11 +18,13 @@ namespace RTS.Entities.Factories
             _context = context;
         }
     
-        public ActorRef GetEntity()
+        public ActorRef GetEntity(out long id)
         {
             long teamId = _teamId++;
             Props props = new Props(Deploy.Local, typeof(Team), new List<object> { _context, teamId });
             ActorRef entity = _context.ActorOf(props, "Team" + teamId);
+
+            id = teamId;
 
             return entity;
         }

@@ -76,6 +76,34 @@ namespace RTS.Networking.Helios
             }
             catch (SocketException ex)
             {
+                Console.WriteLine("EXCEPTION Sending Command to Client: " + ex.ToString());
+            }
+        }
+        public void SendCommand(IMmoCommand command)
+        {
+            //if (command.CommandDestination == Destination.Server)
+            //{
+            //    return; // Don't send server only commands to a client.
+            //}
+
+            if (_connection.IsOpen() == false)// || _connection.Available == 0)
+            {
+                return;
+            }
+
+            var bytes = command.ToBytes();
+            var networkData = new NetworkData()
+            {
+                Buffer = bytes,
+                Length = bytes.Length,
+                RemoteHost = _connection.RemoteHost
+            };
+            try
+            {
+                _connection.Send(networkData);
+            }
+            catch (SocketException ex)
+            {
 
             }
         }

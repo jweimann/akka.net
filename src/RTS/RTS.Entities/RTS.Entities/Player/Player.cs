@@ -1,6 +1,8 @@
 ﻿using Akka.Actor;
 using RTS.Commands;
+using RTS.Commands.Client;
 using RTS.Commands.Interfaces;
+using RTS.Commands.Server;
 using RTS.Entities.Interfaces.Control;
 using RTS.Entities.Interfaces.EntityComponents;
 using RTS.Entities.Interfaces.Player;
@@ -21,6 +23,7 @@ namespace RTS.Entities.Player
         private RTSHeliosNetworkClient _client;
         private List<IPlayerComponent> _components;
         private ActorRef _team;
+        private long _teamId; // Not set on server atm.
         public Player(RTSHeliosNetworkClient client, List<IPlayerComponent> components)
         {
             _client = client;
@@ -42,6 +45,10 @@ namespace RTS.Entities.Player
                 if ((command as MmoCommand<IPlayer>).CanExecute(this))
                 {
                     (command as MmoCommand<IPlayer>).Execute(this);
+                }
+                if ((command as MmoCommand<IPlayer>).TellClient)
+                {
+                    _client.SendCommand(command as MmoCommand<IPlayer>);
                 }
             }
             if (command is IEntityTargeterCommand)
@@ -116,7 +123,6 @@ namespace RTS.Entities.Player
                 {
                     _client.SendCommand(command as MmoCommand<ITeam>);
                 }
-               
             }
         }
 
@@ -132,5 +138,12 @@ namespace RTS.Entities.Player
         {
             _team = team as ActorRef;
         }
+
+
+        public void SetTeamId(long teamId)
+        {
+            _teamId = teamId;
+        }
+
     }
 }

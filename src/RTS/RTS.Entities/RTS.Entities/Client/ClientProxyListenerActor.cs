@@ -69,9 +69,11 @@ namespace RTS.Entities.Client
             _connections.Add(connection);
 
             var player = _factory.GetEntity(connection);
-            var team = _teamFactory.GetEntity();
-            team.Tell(new SetPlayerCommand() { PlayerActor = player });
-            player.Tell(new SetTeamCommand() { TeamActor = team });
+            long teamId;
+            var team = _teamFactory.GetEntity(out teamId);
+            team.Tell(new SetPlayerCommand() { PlayerActor = player }); // Tell the team what it's player actor is
+            player.Tell(new SetTeamCommand() { TeamActor = team }); // Tell the player what it's team actor is
+            player.Tell(new SetClientPlayerInfoCommand() { TeamId = teamId });
 
 
             //_clientProxyCollectionActor.Tell(new AcceptClientConnectionRequest() { Connection = connection });

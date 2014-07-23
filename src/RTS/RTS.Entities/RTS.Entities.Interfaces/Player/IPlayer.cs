@@ -10,5 +10,7 @@ namespace RTS.Entities.Interfaces.Player
         void HandleCommand(object command);
         void MessageComponents(object message);
         void SetTeam(object team);
+
+        void SetTeamId(long p);
     }
 }

@@ -22,7 +22,7 @@ namespace RTS.Entities.Interfaces.Control
         void SendEntitiesInAreaListToEntity(object sender);
         int GetId();
 
-        void SpawnEntity(string name, Vector3 position, long entityId);
+        void SpawnEntity(string name, Vector3 position, long entityId, long teamId);
 
         void SetUnitPath(long unitId, List<Vector3> path);
 

@@ -12,7 +12,7 @@ namespace RTS.Commands.Interfaces
         //Destination CommandDestination { get; }
 
     }
-    public interface IMmoCommand<T> //: IMmoCommand 
+    public interface IMmoCommand<T> : IMmoCommand 
     {
         CommandId CommandId { get; }
         Destination CommandDestination { get; }

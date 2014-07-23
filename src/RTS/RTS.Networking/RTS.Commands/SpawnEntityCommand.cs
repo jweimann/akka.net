@@ -15,6 +15,7 @@ namespace RTS.Commands
         public Vector3 Position { get; set; }
         public string Name { get; set; }
         public long EntityId { get; set; }
+        public long TeamId { get; set; }
 
         public override Core.Enums.CommandId CommandId
         {
@@ -23,7 +24,7 @@ namespace RTS.Commands
 
         public override void Execute(IEntityController target)
         {
-            target.SpawnEntity(Name, Position, this.EntityId);
+            target.SpawnEntity(Name, Position, this.EntityId, this.TeamId);
         }
 
         public override bool CanExecute(IEntityController target)
