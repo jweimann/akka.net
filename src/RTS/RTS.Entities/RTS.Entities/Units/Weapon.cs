@@ -63,7 +63,7 @@ namespace RTS.Entities.Units
             }
         }
 
-        public void Update(double deltaTime)
+        public void Tick(double deltaTime)
         {
             _reloadTimer -= (float)deltaTime;
             TryFire(deltaTime);

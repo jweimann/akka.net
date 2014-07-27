@@ -11,11 +11,11 @@ namespace RTS.Commands.Buildings
 {
     public class FinishBuildEntityCommand : MmoCommand<ITeam>, IMmoCommand<ITeam>
     {
-        public string Name { get; set; }
+        public UnitType UnitType { get; set; }
         public Vector3 Position { get; set; }
         public override void Execute(ITeam target)
         {
-            target.FinishBuildEntity(this.Name, this.Position);
+            target.FinishBuildEntity(this.UnitType, this.Position);
         }
 
         public override bool CanExecute(ITeam target)
@@ -42,7 +42,7 @@ namespace RTS.Commands.Buildings
 
         void IMmoCommand<ITeam>.Execute(ITeam target)
         {
-            target.FinishBuildEntity(this.Name, this.Position);
+            target.FinishBuildEntity(this.UnitType, this.Position);
         }
 
         bool IMmoCommand<ITeam>.CanExecute(ITeam target)

@@ -112,19 +112,19 @@
     </ProjectReference>
     <ProjectReference Include="..\..\RTS.Core\RTS.Core.csproj">
       <Project>{746b8f98-712d-4bef-9922-ac09ccaef5ad}</Project>
-      <Name>OpenMmo.Core</Name>
+      <Name>RTS.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\RTS.Networking\RTS.Commands\RTS.Commands.csproj">
       <Project>{6fc5ce53-9259-47ba-b038-0df100079dd2}</Project>
-      <Name>OpenMmo.Commands</Name>
+      <Name>RTS.Commands</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\RTS.Entities\RTS.Entities.Interfaces\RTS.Entities.Interfaces.csproj">
       <Project>{3a4143da-d595-4d8b-b0fb-341a1b91b498}</Project>
-      <Name>OpenMmo.Entities.Interfaces</Name>
+      <Name>RTS.Entities.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\RTS.Entities\RTS.Entities\RTS.Entities.csproj">
       <Project>{eb475b73-76de-43fe-9396-d22327cecaea}</Project>
-      <Name>OpenMmo.Entities</Name>
+      <Name>RTS.Entities</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

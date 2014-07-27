@@ -10,21 +10,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RTS.Core.Enums;
 
 namespace RTS.Entities.Buildings
 {
     public class Building : IBuilding
     {
         private IEntity _entity;
-        private Dictionary<DateTime, Tuple<string, Vector3?>> _buildQueue;
+        private Dictionary<DateTime, Tuple<UnitType, Vector3?>> _buildQueue;
 
         public Building()
         {
-            _buildQueue = new Dictionary<DateTime, Tuple<string, Vector3?>>();
+            _buildQueue = new Dictionary<DateTime, Tuple<UnitType, Vector3?>>();
         }
         public void BuildEntity(UnitDefinition unitDefinition, Vector3? position)
         {
-            _buildQueue.Add(DateTime.Now + TimeSpan.FromSeconds(unitDefinition.BuildTime), new Tuple<string, Vector3?>(unitDefinition.Name, position));
+            _buildQueue.Add(DateTime.Now + TimeSpan.FromSeconds(unitDefinition.BuildTime), new Tuple<UnitType, Vector3?>(unitDefinition.UnitType, position));
         }
 
         public List<UnitDefinition> BuildableEntities
@@ -65,7 +66,7 @@ namespace RTS.Entities.Buildings
             }
         }
 
-        public void Update(double deltaTime)
+        public void Tick(double deltaTime)
         {
             List<DateTime> keysToRemove = new List<DateTime>();
             foreach (var key in _buildQueue.Keys)
@@ -82,12 +83,12 @@ namespace RTS.Entities.Buildings
             }
         }
 
-        private void SendBuildEntityToTeam(Tuple<string, Vector3?> buildInfo)
+        private void SendBuildEntityToTeam(Tuple<UnitType, Vector3?> buildInfo)
         {
             ActorRef entityActor = _entity.GetActorRef() as ActorRef;
             var command = new FinishBuildEntityCommand()
             {
-                Name = buildInfo.Item1,
+                UnitType = buildInfo.Item1,
                 Position = _entity.Position + new Vector3(10, 0, 0)    
             };
             if (buildInfo.Item2 != null)

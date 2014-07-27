@@ -1,6 +1,7 @@
 ﻿using RTS.Commands;
 using RTS.Commands.Interfaces;
 using RTS.Core.Enums;
+using RTS.DataStructures;
 using RTS.Entities.Interfaces;
 using RTS.Entities.Interfaces.Stats;
 using System;
@@ -19,9 +20,9 @@ namespace RTS.Entities.Stats
         private Dictionary<StatId, int> _stats = new Dictionary<StatId, int>();
         public int HP { get; private set; }
         
-        public Stats()
+        public Stats(UnitDefinition unitDefinition)
         {
-            HP = 127;
+            HP = unitDefinition.StartingHP;
             _stats.Add(StatId.HP, HP);
             _stats.Add(StatId.Mana, 45);
             _dirty = true;
@@ -49,7 +50,7 @@ namespace RTS.Entities.Stats
             }
         }
 
-        public void Update(double deltaTime)
+        public void Tick(double deltaTime)
         {
             if (_dirty)
             {

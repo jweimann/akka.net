@@ -34,7 +34,7 @@ namespace RTS.Entities.Movement
             }
         }
 
-        public override void Update(double deltaTime)
+        public override void Tick(double deltaTime)
         {
             if (_dirty)
             {

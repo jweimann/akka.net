@@ -12,5 +12,7 @@ namespace RTS.DataStructures
         public string Name;
         public bool SpawnLocationRequired;
         public float BuildTime;
+
+        public int StartingHP;
     }
 }

@@ -96,7 +96,6 @@
     <Compile Include="Factories\IActorFactory.cs" />
     <Compile Include="Factories\IEntityFactory.cs" />
     <Compile Include="Factories\IPlayerFactory.cs" />
-    <Compile Include="Factories\NPCEntityFactory.cs" />
     <Compile Include="Factories\PlayerFactory.cs" />
     <Compile Include="Factories\TeamFactory.cs" />
     <Compile Include="Factories\UnitFactory.cs" />
@@ -142,9 +141,17 @@
       <Project>{746b8f98-712d-4bef-9922-ac09ccaef5ad}</Project>
       <Name>RTS.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\RTS.Data\ContentRepository\RTS.ContentRepository\RTS.ContentRepository.csproj">
+      <Project>{d56e44df-ba71-4187-b49a-bc9d5367d74d}</Project>
+      <Name>RTS.ContentRepository</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\RTS.Data\DataStructures\RTS.DataStructures.csproj">
       <Project>{2c6a9e1f-87d2-4aef-b872-8abad5b16cbe}</Project>
       <Name>RTS.DataStructures</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\RTS.Data\RTS.Repository.Interfaces\RTS.Repository.Interfaces.csproj">
+      <Project>{b2c7ec80-fd4c-4211-b940-349d47d28788}</Project>
+      <Name>RTS.Repository.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\RTS.Networking\RTS.Commands\RTS.Commands.csproj">
       <Project>{6fc5ce53-9259-47ba-b038-0df100079dd2}</Project>

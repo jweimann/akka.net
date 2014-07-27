@@ -44,9 +44,9 @@ namespace RTS.Entities.Movement
         {
             SetVelocity(new Vector3(1f, 0, 0));
         }
-        public override void Update(double deltaTime)
+        public override void Tick(double deltaTime)
         {
-            base.Update(deltaTime);
+            base.Tick(deltaTime);
 
             long now = DateTime.Now.Ticks;
             if (_lastTime == 0) _lastTime = now;

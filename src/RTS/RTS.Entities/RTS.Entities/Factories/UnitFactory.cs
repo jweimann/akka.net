@@ -1,5 +1,7 @@
 ﻿using Akka.Actor;
+using RTS.ContentRepository;
 using RTS.Core.Structs;
+using RTS.DataStructures;
 using RTS.Entities.Structs;
 using RTS.Entities.Units;
 using System;
@@ -13,10 +15,12 @@ namespace RTS.Entities.Factories
     public class UnitFactory: IEntityFactory
     {
         private ActorSystem _context;
+        private UnitDefinitionRepository _repository;
         private static Int64 _nextEntityId = 10000;
         public UnitFactory(ActorSystem context)
         {
             _context = context;
+            _repository = new UnitDefinitionRepository();
         }
         public ActorRef GetEntity(ActorRef teamActor, out long entityId)
         {
@@ -28,11 +32,13 @@ namespace RTS.Entities.Factories
         {
             entityId = _nextEntityId++;
 
+            UnitDefinition unitDefinition = _repository.Get(data.UnitType);
+
             List<IEntityComponent> args = new List<IEntityComponent>();
             List<IEntityComponent> components = new List<IEntityComponent>();
             components.Add(new Vehicle());
             components.Add(new Weapon());
-            components.Add(new Stats.Stats());
+            components.Add(new Stats.Stats(unitDefinition));
             Props props = new Props(Deploy.Local, typeof(Entity), new List<object> { entityId, components, data });
             ActorRef entity = _context.ActorOf(props, "Entity" + entityId);
 

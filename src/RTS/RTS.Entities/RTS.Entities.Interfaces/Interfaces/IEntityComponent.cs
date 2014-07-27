@@ -11,7 +11,7 @@ namespace RTS.Entities
         void MessageComponents(object message);
         void SetEntity(IEntity entity);
         void HandleMessage(object message);
-        void Update(double deltaTime);
+        void Tick(double deltaTime);
         void PreStart();
     }
 }

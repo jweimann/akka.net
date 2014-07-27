@@ -26,7 +26,7 @@ namespace RTS.Entities.Client
     {
         private ActorSelection _clientProxyCollectionActor;
         private List<MmoNetworkClient> _clients = new List<MmoNetworkClient>();
-        private List<IConnection> _connections = new List<IConnection>();
+        private Dictionary<IConnection, ActorRef> _connections = new Dictionary<IConnection, ActorRef>();
         private IPlayerFactory _factory;
         private TeamFactory _teamFactory;
 
@@ -58,25 +58,33 @@ namespace RTS.Entities.Client
             _server.OnDisconnection += (reason, address) =>
                 {
                     Console.WriteLine("Disconnected: {0}; Reason: {1}", address.RemoteHost, reason.Type);
+                    DisconnectClient(address);
                 };
             _server.Start();
 
             base.PreStart();
         }
 
+        private void DisconnectClient(IConnection address)
+        {
+            return;
+            if (_connections.ContainsKey(address))
+            {
+                var players = Context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Player*");
+                players.Tell(new PlayerDisconnectedCommand() { PlayerActor = _connections[address] });
+                _connections.Remove(address);
+            }
+        }
+
         private void AcceptClient(IConnection connection)
         {
-            _connections.Add(connection);
-
-            var player = _factory.GetEntity(connection);
+            var player = _factory.GetPlayer(connection);
             long teamId;
             var team = _teamFactory.GetEntity(out teamId);
             team.Tell(new SetPlayerCommand() { PlayerActor = player }); // Tell the team what it's player actor is
             player.Tell(new SetTeamCommand() { TeamActor = team }); // Tell the player what it's team actor is
-            player.Tell(new SetClientPlayerInfoCommand() { TeamId = teamId });
 
-
-            //_clientProxyCollectionActor.Tell(new AcceptClientConnectionRequest() { Connection = connection });
+            _connections.Add(connection, player);
         }
 
 

@@ -280,11 +280,11 @@ akka {
             //system.ActorOf<AreaOfInterestCollectionActor>("AreaOfInterestCollection");
             system.ActorOf<ClientProxyListenerActor>("ClientProxyListener");
 
-            NPCEntityFactory npcFactory = new NPCEntityFactory(system);
+            //NPCEntityFactory npcFactory = new NPCEntityFactory(system);
 
             for (int i = 0; i < 0; i++)
             {
-                npcFactory.GetEntity();
+           //     npcFactory.GetEntity();
             }
             
 

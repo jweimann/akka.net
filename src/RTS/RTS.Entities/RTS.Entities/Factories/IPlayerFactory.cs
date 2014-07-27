@@ -9,6 +9,6 @@ namespace RTS.Entities.Factories
 {
     public interface IPlayerFactory
     {
-        ActorRef GetEntity(IConnection connection);
+        ActorRef GetPlayer(IConnection connection);
     }
 }

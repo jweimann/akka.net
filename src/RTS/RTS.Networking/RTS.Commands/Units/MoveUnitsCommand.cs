@@ -64,6 +64,7 @@ namespace RTS.Commands.Units
         {
             foreach (long entityId in this.EntityIds)
             {
+                target.ClearTarget();
                 target.MoveToPosition(this.Position);
             }
         }

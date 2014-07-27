@@ -9,5 +9,6 @@ namespace RTS.Core.Enums
     {
         TruckDepot,
         Truck,
+        StugIII,
     }
 }

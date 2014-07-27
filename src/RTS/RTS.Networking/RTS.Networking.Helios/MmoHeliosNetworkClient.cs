@@ -25,7 +25,13 @@ namespace RTS.Networking.Helios
         {
             _connection = connection;
             _connection.BeginReceive(_connection_Receive);//
+            _connection.OnDisconnection += _connection_OnDisconnection;
             //_connection.Receive += _connection_Receive;
+        }
+
+        void _connection_OnDisconnection(global::Helios.Exceptions.HeliosConnectionException reason, IConnection closedChannel)
+        {
+            _connection = null;
         }
 
         void _connection_Receive(NetworkData incomingData, IConnection responseChannel)
@@ -58,7 +64,7 @@ namespace RTS.Networking.Helios
                 return; // Don't send server only commands to a client.
             }
 
-            if (_connection.IsOpen() == false)// || _connection.Available == 0)
+            if (_connection == null || _connection.IsOpen() == false)// || _connection.Available == 0)
             {
                 return;
             }

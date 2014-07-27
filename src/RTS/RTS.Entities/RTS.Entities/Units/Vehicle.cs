@@ -74,7 +74,7 @@ namespace RTS.Entities.Units
             }
         }
 
-        public async void Update(double deltaTime)
+        public async void Tick(double deltaTime)
         {
             if (PathIsSet())
             {

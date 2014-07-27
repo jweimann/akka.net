@@ -1,8 +1,10 @@
 ﻿using Akka.Actor;
 using RTS.Commands;
+using RTS.Commands.Buildings;
 using RTS.Commands.Client;
 using RTS.Commands.Interfaces;
 using RTS.Commands.Server;
+using RTS.Core.Enums;
 using RTS.Entities.Interfaces.Control;
 using RTS.Entities.Interfaces.EntityComponents;
 using RTS.Entities.Interfaces.Player;
@@ -20,18 +22,40 @@ namespace RTS.Entities.Player
 {
     public class Player : UntypedActor, IPlayer
     {
+        private const int STARTING_MONEY = 500;
+
         private RTSHeliosNetworkClient _client;
         private List<IPlayerComponent> _components;
         private ActorRef _team;
         private long _teamId; // Not set on server atm.
+        private int _money;
+        
         public Player(RTSHeliosNetworkClient client, List<IPlayerComponent> components)
         {
             _client = client;
             _components = components;
+            _money = STARTING_MONEY;
             foreach (var component in _components)
             {
                 component.SetPlayer(this);
             }
+        }
+        protected override void PreStart()
+        {
+            SendInfoToClient();
+            Context.System.Scheduler.Schedule(TimeSpan.FromMilliseconds(100), TimeSpan.FromMilliseconds(1000), () => Update());
+            base.PreStart();
+        }
+
+        private void Update()
+        {
+            _money += 10;
+            SendInfoToClient();
+        }
+
+        private void SendInfoToClient()
+        {
+            _client.SendCommand(new SetClientPlayerInfoCommand() { TeamId = _teamId, Money = _money });
         }
         protected override void OnReceive(object message)
         {
@@ -70,7 +94,18 @@ namespace RTS.Entities.Player
                 }
                 if (((MmoCommand<IBuilding>)command).TellServer)
                 {
-                    _team.Tell(command);
+                    if (IsBuildEntityCommand(command))
+                    {
+                        if (CanAffordBuild(command))
+                        {
+                            _money -= GetUnitCost(((BuildEntityCommand)command).UnitTypeId);
+                            _team.Tell(command);
+                        }
+                    }
+                    else
+                    {
+                        _team.Tell(command);
+                    }
                 }
             }
             if (command is IEntityControllerCommand)
@@ -126,6 +161,32 @@ namespace RTS.Entities.Player
             }
         }
 
+        private bool CanAffordBuild(object command)
+        {
+            BuildEntityCommand cmd = command as BuildEntityCommand;
+            return this._money > GetUnitCost(cmd.UnitTypeId);
+        }
+
+        private int GetUnitCost(Core.Enums.UnitType unitType)
+        {
+            switch (unitType)
+            {
+                case Core.Enums.UnitType.Truck:
+                    return 100;
+                case Core.Enums.UnitType.StugIII:
+                    return 150;
+                case Core.Enums.UnitType.TruckDepot:
+                    return 250;
+                default:
+                    return 0;
+            }
+        }
+
+        private bool IsBuildEntityCommand(object command)
+        {
+            return command is BuildEntityCommand;
+        }
+
         public void MessageComponents(object message)
         {
             foreach (var component in _components)
@@ -134,16 +195,26 @@ namespace RTS.Entities.Player
             }
         }
 
-        public void SetTeam(object team)
+        public async void SetTeam(object team)
         {
             _team = team as ActorRef;
+            _teamId = await _team.Ask<long>(EntityRequest.GetTeam);
         }
-
 
         public void SetTeamId(long teamId)
         {
             _teamId = teamId;
         }
 
+        public void SetMoney(int money)
+        {
+            _money = money;
+        }
+
+
+        public void HandlePlayerDisconnected(object PlayerActor)
+        {
+            //_components.FirstOrDefault(t=> t is Ic)
+        }
     }
 }

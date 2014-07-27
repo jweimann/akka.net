@@ -28,7 +28,7 @@ namespace RTS.Entities
         }
 
         public abstract void HandleMessage(object message);
-        public abstract void Update(double deltaTime);
+        public abstract void Tick(double deltaTime);
         public virtual void PreStart() { }
 
         void IEntityComponent.MessageComponents(object message)

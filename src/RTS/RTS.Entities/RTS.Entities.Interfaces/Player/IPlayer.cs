@@ -11,6 +11,10 @@ namespace RTS.Entities.Interfaces.Player
         void MessageComponents(object message);
         void SetTeam(object team);
 
-        void SetTeamId(long p);
+        void SetTeamId(long teamId);
+
+        void SetMoney(int money);
+
+        void HandlePlayerDisconnected(object PlayerActor);
     }
 }

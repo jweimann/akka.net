@@ -21,10 +21,10 @@ namespace RTS.Entities.Movement
             this.Speed = 1f;
             base.PreStart();
         }
-        public override void Update(double deltaTime)
+        public override void Tick(double deltaTime)
         {
             MoveTowardDestination();
-            base.Update(deltaTime);
+            base.Tick(deltaTime);
         }
 
         private void MoveTowardDestination()

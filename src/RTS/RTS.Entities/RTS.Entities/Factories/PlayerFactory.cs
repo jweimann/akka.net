@@ -20,7 +20,7 @@ namespace RTS.Entities.Factories
         {
             _context = context;
         }
-        public ActorRef GetEntity(IConnection connection)
+        public ActorRef GetPlayer(IConnection connection)
         {
             List<IPlayerComponent> args = new List<IPlayerComponent>();
 

@@ -16,7 +16,7 @@ namespace RTS.Entities.Npcs
             
         }
 
-        public override void Update(double deltaTime)
+        public override void Tick(double deltaTime)
         {
             
         }

@@ -26,6 +26,8 @@ using RTS.Commands.Client;
 using RTS.Core.Enums;
 using RTS.Entities.Interfaces.EntityComponents;
 using RTS.Commands.Team;
+using System.Threading;
+using Akka;
 
 namespace RTS.Entities
 {
@@ -39,6 +41,7 @@ namespace RTS.Entities
         private DateTime _lastUpdateTime;
         private SpawnEntityData _spawnEntityData; // Keeping this with team and other info, maybe just keep this around and not have a bunch of individual vars.
         private ActorRef _entityActorRef;
+        private CancellationTokenSource _cancellationTokenSource;
 
         public ActorRef TeamActor { get; set; } // TODO: Switch this to be the team?  Make Team an Actor?  Also using ActorRef instead of selection because selection was failing for some unknown reason.
         public Vector3 Position { get; set; }
@@ -65,9 +68,9 @@ namespace RTS.Entities
             _context = Context;
             _entityActorRef = this.Self;
             //_areaOfInterestCollection = Context.System.ActorSelection("akka.tcp://MyServer@localhost:2020/user/AreaOfInterestCollection");
-            
-            //GetAreaOfInterest(Vector3.zero);
-            Context.System.Scheduler.Schedule(TimeSpan.FromMilliseconds(UPDATE_TIMER), TimeSpan.FromMilliseconds(UPDATE_TIMER), () => Update());
+
+            _cancellationTokenSource = new CancellationTokenSource();
+            Context.System.Scheduler.Schedule(TimeSpan.FromMilliseconds(UPDATE_TIMER), TimeSpan.FromMilliseconds(UPDATE_TIMER), () => Update(), _cancellationTokenSource.Token);
 
             if (GetComponent<NpcMover>() != null)
             {
@@ -80,6 +83,11 @@ namespace RTS.Entities
             }
         }
 
+        protected override void PostStop()
+        {
+            _cancellationTokenSource.Cancel();
+            base.PostStop();
+        }
         private void TurnAround()
         {
             GetComponent<NpcMover>().TurnAround();
@@ -91,7 +99,7 @@ namespace RTS.Entities
             _lastUpdateTime = DateTime.Now;
             foreach (var component in _components)
             {
-                component.Update(deltaTime);
+                component.Tick(deltaTime);
             }
         }
 
@@ -175,24 +183,16 @@ namespace RTS.Entities
 
         protected override void OnReceive(object message)
         {
-            if (message is EntityRequest)
-            {
-                switch ((EntityRequest)message)
-                {
-                    case EntityRequest.GetTeam:
-                        Sender.Tell(_spawnEntityData.TeamId);
-                        break;
-                    case EntityRequest.GetSpawnData:
-                        {
-                            SpawnEntityData data = new SpawnEntityData() { EntityId = this.Id, Name = this._spawnEntityData.Name, Position= this.Position, TeamId = this._spawnEntityData.TeamId };
-                            Sender.Tell(data);
-                        }
-                        break;
-                    case EntityRequest.GetIsAlive:
-                        Sender.Tell(this.IsAlive);
-                        break;
-                }
-            }
+            HandleEntityRequest(message);
+
+            //PatternMatch.Match(message)
+            //    .With<GetPositionCommand>(m=> Sender.Tell(this.Position))
+            //    .With<IMmoCommand<IController>>(m => MessageComponents(message))
+            //    .With<IMmoCommand<ITeam>>(m => ForwardMessageToController(message))
+            //    .With<IMmoCommand<IEntityTargeter>>(m => MessageComponents(message))
+            //    .Default(m => MessageComponents(message));
+
+            //return;
 
             if (message is GetPositionCommand)
             {
@@ -225,6 +225,28 @@ namespace RTS.Entities
             else
             {
                 MessageComponents(command);
+            }
+        }
+
+        private void HandleEntityRequest(object message)
+        {
+            if (message is EntityRequest)
+            {
+                switch ((EntityRequest)message)
+                {
+                    case EntityRequest.GetTeam:
+                        Sender.Tell(_spawnEntityData.TeamId);
+                        break;
+                    case EntityRequest.GetSpawnData:
+                        {
+                            SpawnEntityData data = new SpawnEntityData() { EntityId = this.Id, Name = this._spawnEntityData.Name, Position = this.Position, TeamId = this._spawnEntityData.TeamId };
+                            Sender.Tell(data);
+                        }
+                        break;
+                    case EntityRequest.GetIsAlive:
+                        Sender.Tell(this.IsAlive);
+                        break;
+                }
             }
         }
 

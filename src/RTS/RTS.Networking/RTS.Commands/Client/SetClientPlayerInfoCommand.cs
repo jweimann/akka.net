@@ -12,10 +12,12 @@ namespace RTS.Commands.Server
     {
         public long TeamId { get; set; }
         public string PlayerName { get; set;}
+        public int Money { get; set; }
 
         public override void Execute(IPlayer target)
         {
             target.SetTeamId(this.TeamId);
+            target.SetMoney(this.Money);
         }
 
         public override bool CanExecute(IPlayer target)

@@ -7,8 +7,10 @@ using RTS.Commands.Server;
 using RTS.Commands.Team;
 using RTS.Commands.Units;
 using RTS.Commands.Weapons;
+using RTS.ContentRepository;
 using RTS.Core.Enums;
 using RTS.Core.Structs;
+using RTS.DataStructures;
 using RTS.Entities.Buildings;
 using RTS.Entities.Factories;
 using RTS.Entities.Interfaces.Control;
@@ -56,12 +58,12 @@ namespace RTS.Entities.Client
             EntityActors.Add(entityId, building);
         }
 
-        private void SpawnUnit(UnitType unitType, string name, Vector3 position, long teamId)
+        private void SpawnUnit(UnitDefinition unitDefinition, Vector3 position, long teamId)
         {
             long entityId;
-            var unit = _unitFactory.GetEntity(new SpawnEntityData() { Name = unitType.ToString(), Position = position, TeamActor = this.Self, TeamId = this._teamId }, out entityId);
+            var unit = _unitFactory.GetEntity(new SpawnEntityData() { UnitType = unitDefinition.UnitType, Position = position, TeamActor = this.Self, TeamId = this._teamId }, out entityId);
 
-            SpawnEntityCommand command = new SpawnEntityCommand() { Name = unitType.ToString(), Position = position, EntityId = entityId, TeamId = teamId };
+            SpawnEntityCommand command = new SpawnEntityCommand() { Name = unitDefinition.UnitType.ToString(), Position = position, EntityId = entityId, TeamId = teamId };
             var selection = _context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Player*");
 
             selection.Tell(command);
@@ -72,6 +74,9 @@ namespace RTS.Entities.Client
         public void HandleMessage(object message)
         {
             Console.WriteLine("Team recieved message" + message.ToString());
+
+            HandleEntityRequest(message);
+
             if (message is IMmoCommand<ITeam>)
             {
                 if ((message as IMmoCommand<ITeam>).CanExecute(this))
@@ -158,7 +163,7 @@ namespace RTS.Entities.Client
         private void Initialize()
         {
             Random rand = new Random();
-            Vector3 spawnPoint = new Vector3(rand.Next(-20, 20), 0, rand.Next(-20, 20));
+            Vector3 spawnPoint = new Vector3(rand.Next(-100, 100), 0, rand.Next(-100, 100));
             SpawnBuilding(UnitType.TruckDepot, "TruckDepot", spawnPoint, this._teamId);
             _initialized = true;
         }
@@ -210,18 +215,23 @@ namespace RTS.Entities.Client
             throw new NotImplementedException();
         }
 
-
-        public void FinishBuildEntity(string name, Vector3 position)
+        UnitDefinitionRepository _repository = new UnitDefinitionRepository();
+        public void FinishBuildEntity(UnitType unitType, Vector3 position)
         {
-            switch (name)
-            {
-                case "Truck":
-                    SpawnUnit(UnitType.Truck, name, position, this._teamId);
-                    break;
-                case "TruckDepot":
-                    SpawnBuilding(UnitType.TruckDepot, name, position, this._teamId);
-                    break;
-            }
+            var definition = _repository.Get(unitType);
+            SpawnUnit(definition, position, this._teamId);
+            //switch (name)
+            //{
+            //    case "Truck":
+            //        SpawnUnit(UnitType.Truck, name, position, this._teamId);
+            //        break;
+            //    case "stugIII":
+            //        SpawnUnit(UnitType.StugIII, name, position, this._teamId);
+            //        break;
+            //    case "TruckDepot":
+            //        SpawnBuilding(UnitType.TruckDepot, name, position, this._teamId);
+            //        break;
+            //}
         }
 
 
@@ -285,18 +295,34 @@ namespace RTS.Entities.Client
 
 
 
-        public void DestroyEntity(long entityId)
+        public async void DestroyEntity(long entityId)
         {
             if (this.EntityActors.ContainsKey(entityId) == false)
             {
                 Console.WriteLine("Tried to destroy an entity that this Team doesn't control.  It may have already been destroyed previously.");
                 return;
             }
-            
+
+            ActorRef actor = this.EntityActors[entityId] as ActorRef;
+            bool stopped = await actor.GracefulStop(TimeSpan.FromSeconds(1));
             this.EntityActors.Remove(entityId);
+            
             SendCommandToAllPlayers(new DestroyEntityCommand() { EntityId = entityId });
         }
 
+
+        private void HandleEntityRequest(object message)
+        {
+            if (message is EntityRequest)
+            {
+                switch ((EntityRequest)message)
+                {
+                    case EntityRequest.GetTeam:
+                        Sender.Tell(this._teamId);
+                        break;
+                }
+            }
+        }
 
     }
 }
