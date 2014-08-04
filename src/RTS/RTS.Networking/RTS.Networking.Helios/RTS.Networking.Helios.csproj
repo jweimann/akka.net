@@ -88,6 +88,10 @@
       <Project>{3c16668d-86d0-424b-97ab-af5868b6943e}</Project>
       <Name>RTS.Commands.Interfaces</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\RTS.Entities\RTS.Entities.Interfaces\RTS.Entities.Interfaces.csproj">
+      <Project>{3a4143da-d595-4d8b-b0fb-341a1b91b498}</Project>
+      <Name>RTS.Entities.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RTS.Commands\RTS.Commands.csproj">
       <Project>{6fc5ce53-9259-47ba-b038-0df100079dd2}</Project>
       <Name>RTS.Commands</Name>

@@ -14,6 +14,7 @@ using RTS.DataStructures;
 using RTS.Entities.Buildings;
 using RTS.Entities.Factories;
 using RTS.Entities.Interfaces.Control;
+using RTS.Entities.Interfaces.EntityComponents;
 using RTS.Entities.Interfaces.Stats;
 using RTS.Entities.Interfaces.Teams;
 using RTS.Entities.Interfaces.UnitTypes;
@@ -71,20 +72,54 @@ namespace RTS.Entities.Client
             EntityActors.Add(entityId, unit);
         }
 
+        private Func<object, Dictionary<long, object>, bool> HandleBuildEntityCommand = new Func<object, Dictionary<long, object>, bool>((message, entityActors) =>
+            {
+                var msg = message as BuildEntityCommand;
+                if (entityActors.ContainsKey(msg.BuildingEntityId) == false)
+                {
+                    //return; // Not my vehicle.  TODO: Log an error/cheat attempt?
+                    return false;
+                }
+                else
+                {
+                    var buildingActor = entityActors[msg.BuildingEntityId] as ActorRef; //TODO: Will throw if you try to use the wrong team, needs to do checks here or before to make sure the entity is mine.
+
+                    buildingActor.Tell(message);
+                    return true;
+                }
+            });
+
+   
         public void HandleMessage(object message)
         {
             Console.WriteLine("Team recieved message" + message.ToString());
 
             HandleEntityRequest(message);
 
-            if (message is IMmoCommand<ITeam>)
-            {
-                if ((message as IMmoCommand<ITeam>).CanExecute(this))
-                {
-                    (message as IMmoCommand<ITeam>).Execute(this);
-                }
-            }
-            else if (message is BuildEntityCommand)
+            CommandMatch.Match(message)
+                .WithServer<ITeam>(() => (message as IMmoCommand<ITeam>).Execute(this))
+                .WithServer<MoveUnitsCommand>(() => HandleMoveUnitsCommand(message))
+                .WithServer<IBuilding>(() => HandleBuildEntityCommand(message, EntityActors))
+                .WithServer<IVehicle>(() => SendMessageToEntities(message))
+                .WithServer<IStats>(() => SendMessageToEntities(message))
+                .WithServer<IWeapon>(() => SendMessageToEntities(message))
+                .WithServer<IEntityTargeter>(() => SendMessageToEntities(message))
+
+                .WithClient<IEntityController>(() => SendCommandToAllPlayers(message))
+                .WithClient<IStats>(() => SendCommandToAllPlayers(message))
+                .WithClient<IWeapon>(() => SendCommandToAllPlayers(message))
+                ;
+
+            //if (message is IMmoCommand<ITeam>)
+            //{
+            //    if ((message as IMmoCommand<ITeam>).CanExecute(this))
+            //    {
+            //        (message as IMmoCommand<ITeam>).Execute(this);
+            //    }
+            //}
+            //else
+            /*
+            if (message is BuildEntityCommand)
             {
                 var msg = message as BuildEntityCommand;
                 if (EntityActors.ContainsKey(msg.BuildingEntityId) == false)
@@ -95,7 +130,8 @@ namespace RTS.Entities.Client
 
                 buildingActor.Tell(message);
             }
-            else if (message is IMmoCommand<IEntityController>)
+            else 
+                if (message is IMmoCommand<IEntityController>)
             {
                 if ((message as IMmoCommand<IEntityController>).CanExecute(this))
                 {
@@ -108,40 +144,59 @@ namespace RTS.Entities.Client
                     }
                     //(message as IMmoCommand<IEntityController>).Execute(this); //TODO: this is an infinite loop with spawnentitycommand, after seperating from player, find a clean way for this to work.
                 }
-            }
+            }*/
             
-            if (message is IVehicleCommand && ((IVehicleCommand)message).TellServer)
-            {
-                var msg = message as IVehicleCommand;
-                foreach (var entityId in msg.EntityIds)
-                {
-                    if (EntityActors.ContainsKey(entityId))
-                    {
-                        var vehicleActor = EntityActors[entityId] as ActorRef;
-                        vehicleActor.Tell(msg);
-                    }
-                }
-            }
-            if (message is UpdateStatsCommand || message is FireWeaponCommand || message is IEntityComponentCommand)
-            {
-                if ((message as MmoCommand).CommandDestination != Destination.Server)
-                {
-                    SendCommandToAllPlayers(message);
-                }
-                else
-                {
-                    var msg = message as IEntityComponentCommand;
-                    if (this.EntityActors.ContainsKey(msg.EntityId))
-                    {
-                        var entityActor = this.EntityActors[msg.EntityId] as ActorRef;
-                        if (entityActor != null)
-                        {
-                            entityActor.Tell(message);
-                        }
-                    }
-                }
-            }
+            //if (message is IVehicleCommand && ((IVehicleCommand)message).TellServer)
+            //{
+            //    var msg = message as IVehicleCommand;
+            //    foreach (var entityId in msg.EntityIds)
+            //    {
+            //        if (EntityActors.ContainsKey(entityId))
+            //        {
+            //            var vehicleActor = EntityActors[entityId] as ActorRef;
+            //            vehicleActor.Tell(msg);
+            //        }
+            //    }
+            //}
+            //if (message is UpdateStatsCommand || message is FireWeaponCommand || message is IEntityComponentCommand)
+            //{
+            //    if ((message as MmoCommand).CommandDestination != Destination.Server)
+            //    {
+            //        SendCommandToAllPlayers(message);
+            //    }
+            //    else
+            //    {
+            //        SendMessageToEntities(message);
+            //    }
+            //}
           
+        }
+
+        private void SendMessageToEntities(object message)
+        {
+            var msg = message as IEntityComponentCommand;
+            MessageActorById(msg.EntityId, msg);
+        }
+
+        private void MessageActorById(long id, IEntityComponentCommand command)
+        {
+            if (this.EntityActors.ContainsKey(id))
+            {
+                var entityActor = this.EntityActors[id] as ActorRef;
+                if (entityActor != null)
+                {
+                    entityActor.Tell(command);
+                }
+            }
+        }
+
+        private void HandleMoveUnitsCommand(object message)
+        {
+            MoveUnitsCommand command = message as MoveUnitsCommand;
+            foreach(var entityId in command.EntityIds)
+            {
+                MessageActorById(entityId, command);
+            }
         }
 
         private void SendCommandToAllPlayers(object message)

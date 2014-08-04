@@ -61,31 +61,29 @@ namespace RTS.Entities.Player
         {
             HandleCommand(message);
         }
-        
+
         public void HandleCommand(object command)
         {
-            if (command is MmoCommand<IPlayer>)
-            {
-                if ((command as MmoCommand<IPlayer>).CanExecute(this))
-                {
-                    (command as MmoCommand<IPlayer>).Execute(this);
-                }
-                if ((command as MmoCommand<IPlayer>).TellClient)
-                {
-                    _client.SendCommand(command as MmoCommand<IPlayer>);
-                }
-            }
-            if (command is IEntityTargeterCommand)
-            {
-                if (((MmoCommand<IEntityTargeter>)command).TellClient)
-                {
-                    _client.SendCommand(command as MmoCommand<IEntityTargeter>);
-                }
-                else if (((MmoCommand<IEntityTargeter>)command).TellServer)
-                {
-                    _team.Tell(command);
-                }
-            }
+
+            CommandMatch.Match(command)
+                .WithServer<IEntityController>(() => _team.Tell(command))
+                .WithServer<IEntityTargeter>(() => _team.Tell(command))
+                //.WithServer<IBuilding>(() => _team.Tell(command))
+                .WithServer<IWeapon>(() => _team.Tell(command))
+                .WithServer<IPlayer>(() => ((MmoCommand<IPlayer>)command).Execute(this))
+                .WithServer<IStats>(() => _team.Tell(command))
+                .WithServer<IVehicle>(() => _team.Tell(command))
+                .WithServer<IWeapon>(() => _team.Tell(command))
+
+                .WithClient<IEntityController>(() => _client.SendCommand(command as MmoCommand<IEntityController>))
+                .WithClient<IPlayer>(() => _client.SendCommand(command as MmoCommand<IPlayer>))
+                .WithClient<IEntityTargeter>(() => _client.SendCommand(command as MmoCommand<IEntityTargeter>))
+                .WithClient<IStats>(() => _client.SendCommand(command as MmoCommand<IStats>))
+                .WithClient<IVehicle>(() => _client.SendCommand(command as MmoCommand<IVehicle>))
+                .WithClient<IWeapon>(() => _client.SendCommand(command as MmoCommand<IWeapon>))
+                .WithClient<ITeam>(() => _client.SendCommand(command as MmoCommand<ITeam>))
+                ;
+
             if (command is IBuildingCommand)
             {
                 if (((MmoCommand<IBuilding>)command).TellClient)
@@ -108,57 +106,83 @@ namespace RTS.Entities.Player
                     }
                 }
             }
-            if (command is IEntityControllerCommand)
-            {
-                if (((IEntityControllerCommand)command).TellClient)
-                {
-                    _client.SendCommand(command as IEntityControllerCommand);
-                }
-                if (((IEntityControllerCommand)command).TellServer)
-                {
-                    _team.Tell(command);
-                }
-            }
-            if (command is IVehicleCommand)
-            {
-                if (((MmoCommand)command).TellClient)
-                {
-                    _client.SendCommand(command as MmoCommand<IVehicle>);
-                }
-                if (((MmoCommand)command).TellServer)
-                {
-                    _team.Tell(command);
-                }
-            }
-            if (command is UpdateStatsCommand)
-            {
-                if (((MmoCommand)command).TellClient)
-                {
-                    _client.SendCommand(command as MmoCommand<IStats>);
-                }
-                if (((MmoCommand)command).TellServer)
-                {
-                    _team.Tell(command);
-                }
-            }
-            if (command is MmoCommand<IWeapon>)
-            {
-                if (((MmoCommand)command).TellClient)
-                {
-                    _client.SendCommand(command as MmoCommand<IWeapon>);
-                }
-                if (((MmoCommand)command).TellServer)
-                {
-                    _team.Tell(command);
-                }
-            }
-            if (command is MmoCommand<ITeam>)
-            {
-                if (((MmoCommand)command).TellClient)
-                {
-                    _client.SendCommand(command as MmoCommand<ITeam>);
-                }
-            }
+
+            /*
+             //if (command is MmoCommand<IPlayer>)
+     //{
+     //    if ((command as MmoCommand<IPlayer>).CanExecute(this))
+     //    {
+     //        (command as MmoCommand<IPlayer>).Execute(this);
+     //    }
+     //    if ((command as MmoCommand<IPlayer>).TellClient)
+     //    {
+     //        _client.SendCommand(command as MmoCommand<IPlayer>);
+     //    }
+     //}
+     //if (command is IEntityTargeterCommand)
+     //{
+     //    if (((MmoCommand<IEntityTargeter>)command).TellClient)
+     //    {
+     //        _client.SendCommand(command as MmoCommand<IEntityTargeter>);
+     //    }
+     //    else if (((MmoCommand<IEntityTargeter>)command).TellServer)
+     //    {
+     //        _team.Tell(command);
+     //    }
+             //}
+             */
+
+            //if (command is IEntityControllerCommand)
+            //{
+            //    if (((IEntityControllerCommand)command).TellClient)
+            //    {
+            //        _client.SendCommand(command as IEntityControllerCommand);
+            //    }
+            //    if (((IEntityControllerCommand)command).TellServer)
+            //    {
+            //        _team.Tell(command);
+            //    }
+            //}
+            //if (command is IVehicleCommand)
+            //{
+            //    if (((MmoCommand)command).TellClient)
+            //    {
+            //        _client.SendCommand(command as MmoCommand<IVehicle>);
+            //    }
+            //    if (((MmoCommand)command).TellServer)
+            //    {
+            //        _team.Tell(command);
+            //    }
+            //}
+            //if (command is UpdateStatsCommand)
+            //{
+            //    if (((MmoCommand)command).TellClient)
+            //    {
+            //        _client.SendCommand(command as MmoCommand<IStats>);
+            //    }
+            //    if (((MmoCommand)command).TellServer)
+            //    {
+            //        _team.Tell(command);
+            //    }
+            //}
+            //if (command is MmoCommand<IWeapon>)
+            //{
+            //    if (((MmoCommand)command).TellClient)
+            //    {
+            //        _client.SendCommand(command as MmoCommand<IWeapon>);
+            //    }
+            //    if (((MmoCommand)command).TellServer)
+            //    {
+            //        _team.Tell(command);
+            //    }
+            //}
+            //if (command is MmoCommand<ITeam>)
+            //{
+            //    if (((MmoCommand)command).TellClient)
+            //    {
+            //        _client.SendCommand(command as MmoCommand<ITeam>);
+            //    }
+            //}
         }
 
         private bool CanAffordBuild(object command)

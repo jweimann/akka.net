@@ -194,38 +194,44 @@ namespace RTS.Entities
 
             //return;
 
-            if (message is GetPositionCommand)
-            {
-                //Console.WriteLine("Sending my Position for Entity " + this.Id + " Position " + this.Position.ToString());
-                Sender.Tell(this.Position);
-            }
+            CommandMatch.Match(message)
+                .WithServer<GetPositionCommand>(() => Sender.Tell(this.Position))
+                .WithServer<IController>(() => ForwardMessageToController(message))
+                .WithServer<ITeam>(() => ForwardMessageToPlayer(message))
+                .Default(msg => MessageComponents(message));
 
-            MmoCommand command = message as MmoCommand;
-            if (command == null)
-            {
-                MessageComponents(message);
-            }
-            else if (command.GetType().IsAssignableFrom(typeof(IMmoCommand<IController>)))
-            {
-                ForwardMessageToController(command);
-            }
-            else if (command is IMmoCommand<ITeam>)
-            {
-                ForwardMessageToPlayer(command); // TODO: Change this to team and make team an actor?
-            }
+            //if (message is GetPositionCommand)
+            //{
+            //    //Console.WriteLine("Sending my Position for Entity " + this.Id + " Position " + this.Position.ToString());
+            //    Sender.Tell(this.Position);
+            //}
+
+            //MmoCommand command = message as MmoCommand;
+            //if (command == null)
+            //{
+            //    MessageComponents(message);
+            //}
+            //else if (command.GetType().IsAssignableFrom(typeof(IMmoCommand<IController>)))
+            //{
+            //    ForwardMessageToController(command);
+            //}
+            //else if (command is IMmoCommand<ITeam>)
+            //{
+            //    ForwardMessageToPlayer(command); // TODO: Change this to team and make team an actor?
+            //}
             //else if (typeof(IMmoCommand<IEntityComponent>).IsAssignableFrom(command.GetType()))
             //{
             //    HandleMessage(command);
             //}
-            else if (command.GetType().GetInterfaces().Contains(typeof(IMmoCommand<IEntityTargeter>)))
-            {
-                MessageComponents(command);
-                //HandleMessage(command);
-            }
-            else
-            {
-                MessageComponents(command);
-            }
+            //else if (command.GetType().GetInterfaces().Contains(typeof(IMmoCommand<IEntityTargeter>)))
+            //{
+            //    MessageComponents(command);
+            //    //HandleMessage(command);
+            //}
+            //else
+            //{
+            //    MessageComponents(command);
+            //}
         }
 
         private void HandleEntityRequest(object message)

@@ -32,7 +32,7 @@ namespace RTS.Entities.Factories
             List<IEntityComponent> components = new List<IEntityComponent>();
             components.Add(new Building());
             Props props = new Props(Deploy.Local, typeof(Entity), new List<object> { entityId, components, data });
-            ActorRef entity = _context.ActorOf(props);
+            ActorRef entity = _context.ActorOf(props, "Building_" + entityId);
 
             return entity;
         }

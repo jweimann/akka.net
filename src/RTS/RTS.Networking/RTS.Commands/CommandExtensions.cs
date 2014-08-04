@@ -1,5 +1,6 @@
 ﻿using NetSerializer;
 using RTS.Commands.Interfaces;
+using RTS.Entities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -35,6 +36,10 @@ namespace RTS.Commands
                 Serializer.Serialize(stream, command);
                 return stream.ToArray();
             }
+        }
+        public static bool IsHandledBy<T>(this IMmoCommand cmd) where T : class
+        {
+            return typeof(IMmoCommand<T>).IsAssignableFrom(cmd.GetType());
         }
     }
 }
