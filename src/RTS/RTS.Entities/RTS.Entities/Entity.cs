@@ -28,6 +28,7 @@ using RTS.Entities.Interfaces.EntityComponents;
 using RTS.Commands.Team;
 using System.Threading;
 using Akka;
+using RTS.Entities.Interfaces.Player;
 
 namespace RTS.Entities
 {
@@ -67,6 +68,7 @@ namespace RTS.Entities
         {
             _context = Context;
             _entityActorRef = this.Self;
+            _lastUpdateTime = DateTime.Now;
             //_areaOfInterestCollection = Context.System.ActorSelection("akka.tcp://MyServer@localhost:2020/user/AreaOfInterestCollection");
 
             _cancellationTokenSource = new CancellationTokenSource();
@@ -198,6 +200,7 @@ namespace RTS.Entities
                 .WithServer<GetPositionCommand>(() => Sender.Tell(this.Position))
                 .WithServer<IController>(() => ForwardMessageToController(message))
                 .WithServer<ITeam>(() => ForwardMessageToPlayer(message))
+                .WithServer<IPlayer>(() => ForwardMessageToPlayer(message))
                 .Default(msg => MessageComponents(message));
 
             //if (message is GetPositionCommand)
@@ -273,8 +276,9 @@ namespace RTS.Entities
             TeamActor.Tell(new DestroyEntityCommand() { EntityId = this.Id });
         }
 
-
-
-        
+        public void MessagePlayer(object message)
+        {
+            ForwardMessageToPlayer(message);
+        }
     }
 }

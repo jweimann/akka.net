@@ -92,9 +92,14 @@
     <Compile Include="Stats\IStats.cs" />
     <Compile Include="Teams\ITeam.cs" />
     <Compile Include="UnitTypes\IBuilding.cs" />
+    <Compile Include="UnitTypes\IResourceGenerator.cs" />
     <Compile Include="UnitTypes\IVehicle.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Behavior\BehaviorTreeLibrary\BehaviorTreeLibrary.csproj">
+      <Project>{dd5fe23e-1d24-42c8-a43c-82ff5bf236d7}</Project>
+      <Name>BehaviorTreeLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\RTS.Core\RTS.Core.csproj">
       <Project>{746b8f98-712d-4bef-9922-ac09ccaef5ad}</Project>
       <Name>RTS.Core</Name>

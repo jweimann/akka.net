@@ -16,5 +16,7 @@ namespace RTS.Entities.Interfaces.Player
         void SetMoney(int money);
 
         void HandlePlayerDisconnected(object PlayerActor);
+
+        int GetMoney();
     }
 }

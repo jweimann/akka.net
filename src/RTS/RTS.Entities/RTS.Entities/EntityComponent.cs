@@ -35,6 +35,5 @@ namespace RTS.Entities
         {
             throw new NotImplementedException();
         }
-        
     }
 }

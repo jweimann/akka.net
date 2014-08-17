@@ -1,10 +1,12 @@
 ﻿using Akka.Actor;
+using BehaviorTreeLibrary;
 using RTS.Commands;
 using RTS.Commands.Client;
 using RTS.Commands.Interfaces;
 using RTS.Commands.Units;
 using RTS.Core.Enums;
 using RTS.Core.Structs;
+using RTS.Entities.Behaviors;
 using RTS.Entities.Interfaces;
 using RTS.Entities.Interfaces.EntityComponents;
 using RTS.Entities.Interfaces.UnitTypes;
@@ -21,10 +23,12 @@ namespace RTS.Entities.Units
     {
         private IEntity _entity;
         private List<Vector3> _path;
-        private float _moveThreshhold = 24f;
+        private float _moveThreshhold = 0.25f;
         private float _attackRange = 25f;
         private float _speed = 5f;
         private Vector3 _destination;
+
+        List<Behavior> Behaviors = new List<Behavior>();
 
         public Vehicle()
         {
@@ -32,6 +36,13 @@ namespace RTS.Entities.Units
         }
         public void MoveToPosition(Core.Structs.Vector3 position)
         {
+            Behaviors.Clear();
+            Behaviors.Add(new MoveToLocationBehavior(this, position));
+            _destination = position;
+            _path = new List<Vector3>() { position };
+            SendPathToClients(position);
+            return;
+
             if (PositionIsChanged(ref position) == false)
             {
                 return;
@@ -41,6 +52,17 @@ namespace RTS.Entities.Units
             _entity.MessageTeam(new SetPathOnClientCommand() { Path = _path, UnitId = this._entity.Id });
         }
 
+        public void Stop()
+        {
+            Behaviors.Clear();
+            SendPathToClients(GetPosition());
+        }
+
+        private void SendPathToClients(Core.Structs.Vector3 position)
+        {
+            _entity.MessageTeam(new SetPathOnClientCommand() { Path = new List<Vector3>() { position }, UnitId = this._entity.Id });
+        }
+
         private bool PositionIsChanged(ref Core.Structs.Vector3 position)
         {
             return _destination != position;
@@ -48,7 +70,7 @@ namespace RTS.Entities.Units
 
         public void MessageComponents(object message)
         {
-            throw new NotImplementedException();
+            _entity.MessageComponents(message);
         }
 
         public void SetEntity(Interfaces.IEntity entity)
@@ -76,6 +98,13 @@ namespace RTS.Entities.Units
 
         public async void Tick(double deltaTime)
         {
+            //Console.WriteLine("VehicleTick " + DateTime.Now.TimeOfDay.ToString() + " DeltaTime " + deltaTime);
+            for (int i = 0; i < this.Behaviors.Count; i++)
+            {
+                this.Behaviors[i].Tick(deltaTime); // Behaviors need to remove selves or all be on an AI component, mixing is causing conflicts where they fight back and forth
+            }
+           
+
             if (PathIsSet())
             {
                 MoveAlongPath(deltaTime);
@@ -187,6 +216,36 @@ namespace RTS.Entities.Units
         public void SetPath(List<Vector3> list)
         {
             _path = list;
+        }
+
+        #region Behavior Support
+
+        internal Vector3 GetPosition()
+        {
+            return _entity.Position;
+        }
+
+        internal float GetSpeed()
+        {
+            return _speed;
+        }
+
+        internal void SetPosition(Vector3 currentPosition)
+        {
+            _entity.Position = currentPosition;
+            //SendPathToClients(_destination);
+        }
+
+        internal float GetMoveThreshhold()
+        {
+            return _moveThreshhold;
+        }
+
+        #endregion
+
+        internal void SendCommandToTeam(Commands.Buildings.FinishBuildEntityCommand finishBuildEntityCommand)
+        {
+            _entity.MessageTeam(finishBuildEntityCommand);
         }
     }
 }

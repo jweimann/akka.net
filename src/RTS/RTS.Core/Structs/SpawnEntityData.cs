@@ -14,5 +14,6 @@ namespace RTS.Core.Structs
         public object TeamActor;
         public long EntityId;
         public UnitType UnitType;
+
     }
 }

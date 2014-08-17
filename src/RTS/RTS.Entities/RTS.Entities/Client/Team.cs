@@ -15,6 +15,7 @@ using RTS.Entities.Buildings;
 using RTS.Entities.Factories;
 using RTS.Entities.Interfaces.Control;
 using RTS.Entities.Interfaces.EntityComponents;
+using RTS.Entities.Interfaces.Player;
 using RTS.Entities.Interfaces.Stats;
 using RTS.Entities.Interfaces.Teams;
 using RTS.Entities.Interfaces.UnitTypes;
@@ -46,23 +47,22 @@ namespace RTS.Entities.Client
             _unitFactory = new UnitFactory(_context);
         }
 
-        private void SpawnBuilding(UnitType unitType, string name, Vector3 position, long teamId)
-        {
-            long entityId;
-            var building = _buildingFactory.GetEntity(new SpawnEntityData() { Name = unitType.ToString(), Position = position, TeamId = this._teamId }, out entityId);
-
-            SpawnEntityCommand command = new SpawnEntityCommand() { Name = unitType.ToString(), Position = position, EntityId = entityId, TeamId = teamId };
-            var selection = _context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Player*");
-
-            selection.Tell(command);
-
-            EntityActors.Add(entityId, building);
-        }
-
         private void SpawnUnit(UnitDefinition unitDefinition, Vector3 position, long teamId)
         {
             long entityId;
-            var unit = _unitFactory.GetEntity(new SpawnEntityData() { UnitType = unitDefinition.UnitType, Position = position, TeamActor = this.Self, TeamId = this._teamId }, out entityId);
+
+            ActorRef unit = null;
+
+            switch(unitDefinition.UnitType)
+            {
+                case UnitType.TruckDepot:
+                case UnitType.Harvester:
+                    unit = _buildingFactory.GetEntity(new SpawnEntityData() { UnitType = unitDefinition.UnitType, Position = position, TeamId = this._teamId }, out entityId);
+                    break;
+                default:
+                    unit = _unitFactory.GetEntity(new SpawnEntityData() { UnitType = unitDefinition.UnitType, Position = position, TeamActor = this.Self, TeamId = this._teamId }, out entityId);
+                    break;
+            }
 
             SpawnEntityCommand command = new SpawnEntityCommand() { Name = unitDefinition.UnitType.ToString(), Position = position, EntityId = entityId, TeamId = teamId };
             var selection = _context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Player*");
@@ -92,7 +92,7 @@ namespace RTS.Entities.Client
    
         public void HandleMessage(object message)
         {
-            Console.WriteLine("Team recieved message" + message.ToString());
+            //Console.WriteLine("Team recieved message" + message.ToString());
 
             HandleEntityRequest(message);
 
@@ -104,6 +104,7 @@ namespace RTS.Entities.Client
                 .WithServer<IStats>(() => SendMessageToEntities(message))
                 .WithServer<IWeapon>(() => SendMessageToEntities(message))
                 .WithServer<IEntityTargeter>(() => SendMessageToEntities(message))
+                .WithServer<IPlayer>(() => _playerActor.Tell(message))
 
                 .WithClient<IEntityController>(() => SendCommandToAllPlayers(message))
                 .WithClient<IStats>(() => SendCommandToAllPlayers(message))
@@ -219,7 +220,8 @@ namespace RTS.Entities.Client
         {
             Random rand = new Random();
             Vector3 spawnPoint = new Vector3(rand.Next(-100, 100), 0, rand.Next(-100, 100));
-            SpawnBuilding(UnitType.TruckDepot, "TruckDepot", spawnPoint, this._teamId);
+            UnitDefinition definition = _repository.Get(UnitType.TruckDepot);
+            SpawnUnit(definition, spawnPoint, this._teamId);
             _initialized = true;
         }
 
@@ -262,7 +264,8 @@ namespace RTS.Entities.Client
 
         public void SpawnEntity(string name, Vector3 position, long entityId, long teamId)
         {
-            SpawnBuilding(UnitType.TruckDepot, name, position, teamId);
+            var definition = _repository.Get(UnitType.TruckDepot);
+            SpawnUnit(definition, position, teamId);
         }
 
         public void HandleRequest(object request)
@@ -275,18 +278,6 @@ namespace RTS.Entities.Client
         {
             var definition = _repository.Get(unitType);
             SpawnUnit(definition, position, this._teamId);
-            //switch (name)
-            //{
-            //    case "Truck":
-            //        SpawnUnit(UnitType.Truck, name, position, this._teamId);
-            //        break;
-            //    case "stugIII":
-            //        SpawnUnit(UnitType.StugIII, name, position, this._teamId);
-            //        break;
-            //    case "TruckDepot":
-            //        SpawnBuilding(UnitType.TruckDepot, name, position, this._teamId);
-            //        break;
-            //}
         }
 
 

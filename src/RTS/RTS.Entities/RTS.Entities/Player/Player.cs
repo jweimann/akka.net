@@ -4,6 +4,7 @@ using RTS.Commands.Buildings;
 using RTS.Commands.Client;
 using RTS.Commands.Interfaces;
 using RTS.Commands.Server;
+using RTS.ContentRepository;
 using RTS.Core.Enums;
 using RTS.Entities.Interfaces.Control;
 using RTS.Entities.Interfaces.EntityComponents;
@@ -29,12 +30,14 @@ namespace RTS.Entities.Player
         private ActorRef _team;
         private long _teamId; // Not set on server atm.
         private int _money;
+        private UnitDefinitionRepository _repository;
         
         public Player(RTSHeliosNetworkClient client, List<IPlayerComponent> components)
         {
             _client = client;
             _components = components;
             _money = STARTING_MONEY;
+            _repository = new UnitDefinitionRepository();
             foreach (var component in _components)
             {
                 component.SetPlayer(this);
@@ -49,7 +52,7 @@ namespace RTS.Entities.Player
 
         private void Update()
         {
-            _money += 10;
+            //_money += 10;
             SendInfoToClient();
         }
 
@@ -106,83 +109,6 @@ namespace RTS.Entities.Player
                     }
                 }
             }
-
-            /*
-             //if (command is MmoCommand<IPlayer>)
-     //{
-     //    if ((command as MmoCommand<IPlayer>).CanExecute(this))
-     //    {
-     //        (command as MmoCommand<IPlayer>).Execute(this);
-     //    }
-     //    if ((command as MmoCommand<IPlayer>).TellClient)
-     //    {
-     //        _client.SendCommand(command as MmoCommand<IPlayer>);
-     //    }
-     //}
-     //if (command is IEntityTargeterCommand)
-     //{
-     //    if (((MmoCommand<IEntityTargeter>)command).TellClient)
-     //    {
-     //        _client.SendCommand(command as MmoCommand<IEntityTargeter>);
-     //    }
-     //    else if (((MmoCommand<IEntityTargeter>)command).TellServer)
-     //    {
-     //        _team.Tell(command);
-     //    }
-             //}
-             */
-
-            //if (command is IEntityControllerCommand)
-            //{
-            //    if (((IEntityControllerCommand)command).TellClient)
-            //    {
-            //        _client.SendCommand(command as IEntityControllerCommand);
-            //    }
-            //    if (((IEntityControllerCommand)command).TellServer)
-            //    {
-            //        _team.Tell(command);
-            //    }
-            //}
-            //if (command is IVehicleCommand)
-            //{
-            //    if (((MmoCommand)command).TellClient)
-            //    {
-            //        _client.SendCommand(command as MmoCommand<IVehicle>);
-            //    }
-            //    if (((MmoCommand)command).TellServer)
-            //    {
-            //        _team.Tell(command);
-            //    }
-            //}
-            //if (command is UpdateStatsCommand)
-            //{
-            //    if (((MmoCommand)command).TellClient)
-            //    {
-            //        _client.SendCommand(command as MmoCommand<IStats>);
-            //    }
-            //    if (((MmoCommand)command).TellServer)
-            //    {
-            //        _team.Tell(command);
-            //    }
-            //}
-            //if (command is MmoCommand<IWeapon>)
-            //{
-            //    if (((MmoCommand)command).TellClient)
-            //    {
-            //        _client.SendCommand(command as MmoCommand<IWeapon>);
-            //    }
-            //    if (((MmoCommand)command).TellServer)
-            //    {
-            //        _team.Tell(command);
-            //    }
-            //}
-            //if (command is MmoCommand<ITeam>)
-            //{
-            //    if (((MmoCommand)command).TellClient)
-            //    {
-            //        _client.SendCommand(command as MmoCommand<ITeam>);
-            //    }
-            //}
         }
 
         private bool CanAffordBuild(object command)
@@ -193,6 +119,7 @@ namespace RTS.Entities.Player
 
         private int GetUnitCost(Core.Enums.UnitType unitType)
         {
+            return _repository.Get(unitType).Cost;
             switch (unitType)
             {
                 case Core.Enums.UnitType.Truck:
@@ -201,6 +128,8 @@ namespace RTS.Entities.Player
                     return 150;
                 case Core.Enums.UnitType.TruckDepot:
                     return 250;
+                case Core.Enums.UnitType.Engineer:
+                    return 300;
                 default:
                     return 0;
             }
@@ -234,11 +163,17 @@ namespace RTS.Entities.Player
         {
             _money = money;
         }
-
+        public int GetMoney()
+        {
+            return _money;
+        }
 
         public void HandlePlayerDisconnected(object PlayerActor)
         {
             //_components.FirstOrDefault(t=> t is Ic)
         }
+
+
+      
     }
 }

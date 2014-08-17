@@ -84,7 +84,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Behaviors\BuildAtLocationBehavior.cs" />
+    <Compile Include="Behaviors\MoveToLocationBehavior.cs" />
     <Compile Include="Buildings\Building.cs" />
+    <Compile Include="Buildings\ResourceGenerator.cs" />
     <Compile Include="Client\ClientController.cs" />
     <Compile Include="Client\Player.cs" />
     <Compile Include="Client\PlayerComponent.cs" />
@@ -125,6 +128,10 @@
     <Compile Include="Units\Weapon.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Behavior\BehaviorTreeLibrary\BehaviorTreeLibrary.csproj">
+      <Project>{dd5fe23e-1d24-42c8-a43c-82ff5bf236d7}</Project>
+      <Name>BehaviorTreeLibrary</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\core\Akka.Remote\Akka.Remote.csproj">
       <Project>{ea4ff8fd-7c53-49c8-b9aa-02e458b3e6a7}</Project>
       <Name>Akka.Remote</Name>

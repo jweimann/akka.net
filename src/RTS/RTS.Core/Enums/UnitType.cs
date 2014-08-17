@@ -10,5 +10,7 @@ namespace RTS.Core.Enums
         TruckDepot,
         Truck,
         StugIII,
+        Harvester,
+        Engineer,
     }
 }

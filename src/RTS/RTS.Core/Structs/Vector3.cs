@@ -83,9 +83,11 @@ namespace RTS.Core.Structs
             return sizeof(float) + sizeof(float) + sizeof(float);
         }
 
-        public static float Distance(Vector3 v1, Vector3 v2)
+        public static float Distance(Vector3 a, Vector3 b)
         {
-            return (float)Math.Sqrt(Math.Pow((v1.x - v2.x), 2) + Math.Pow((v1.y - v2.y), 2) + Math.Pow((v1.z - v2.z), 2));
+            Vector3 vector = new Vector3(a.x - b.x, a.y - b.y, a.z - b.z);
+            return (float) Math.Sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
+            //return (float)Math.Sqrt(Math.Pow((v1.x - v2.x), 2) + Math.Pow((v1.y - v2.y), 2) + Math.Pow((v1.z - v2.z), 2));
         }
 
         public Vector3 Normalized()

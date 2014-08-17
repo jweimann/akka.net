@@ -12,7 +12,13 @@ namespace RTS.DataStructures
         public string Name;
         public bool SpawnLocationRequired;
         public float BuildTime;
+        public int Cost;
 
         public int StartingHP;
+
+        public int ResourceAmount;
+        public double ResourceInterval;
+
+        public List<UnitType> CanBuild;
     }
 }

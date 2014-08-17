@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace RTS.ContentRepository
 {
@@ -16,9 +15,11 @@ namespace RTS.ContentRepository
         public UnitDefinitionRepository()
         {
             _unitDefinitions = new Dictionary<UnitType, UnitDefinition>();
-            _unitDefinitions.Add(UnitType.TruckDepot, new UnitDefinition() { BuildTime = 2, Name = "TruckDepot", StartingHP = 500, UnitType = UnitType.TruckDepot, SpawnLocationRequired = true });
-            _unitDefinitions.Add(UnitType.Truck, new UnitDefinition() { BuildTime = 1, Name = "Truck", StartingHP = 100, UnitType = UnitType.Truck, SpawnLocationRequired = false });
-            _unitDefinitions.Add(UnitType.StugIII, new UnitDefinition() { BuildTime = 3, Name = "StugIII", StartingHP = 250, UnitType = UnitType.StugIII, SpawnLocationRequired = false });
+            _unitDefinitions.Add(UnitType.TruckDepot, new UnitDefinition() { BuildTime = 2, Name = "TruckDepot", Cost = 250, StartingHP = 500, UnitType = UnitType.TruckDepot, SpawnLocationRequired = true, ResourceAmount = 10, ResourceInterval = 3.0, CanBuild = new List<UnitType>() { UnitType.Engineer, UnitType.Truck, UnitType.TruckDepot, UnitType.StugIII } });
+            _unitDefinitions.Add(UnitType.Truck, new UnitDefinition() { BuildTime = 1, Name = "Truck", Cost =100, StartingHP = 100, UnitType = UnitType.Truck, SpawnLocationRequired = false });
+            _unitDefinitions.Add(UnitType.StugIII, new UnitDefinition() { BuildTime = 3, Name = "StugIII", Cost = 150, StartingHP = 250, UnitType = UnitType.StugIII, SpawnLocationRequired = false });
+            _unitDefinitions.Add(UnitType.Harvester, new UnitDefinition() { BuildTime = 3, Name = "Harvester", Cost = 125, StartingHP = 400, UnitType = UnitType.Harvester, SpawnLocationRequired = true, ResourceAmount = 5, ResourceInterval = 2.0 });
+            _unitDefinitions.Add(UnitType.Engineer, new UnitDefinition() { BuildTime = 3, Name = "Engineer", Cost = 300, StartingHP = 400, UnitType = UnitType.Engineer, SpawnLocationRequired = false, CanBuild = new List<UnitType>() { UnitType.Harvester } });
         }
         public UnitDefinition Get(UnitType Id)
         {

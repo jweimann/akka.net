@@ -11,6 +11,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RTS.Core.Enums;
+using RTS.Entities.Behaviors;
+using RTS.Entities.Units;
+using BehaviorTreeLibrary;
 
 namespace RTS.Entities.Buildings
 {
@@ -18,6 +21,7 @@ namespace RTS.Entities.Buildings
     {
         private IEntity _entity;
         private Dictionary<DateTime, Tuple<UnitType, Vector3?>> _buildQueue;
+        public List<BehaviorTreeLibrary.Behavior> Behaviors = new List<BehaviorTreeLibrary.Behavior>();
 
         public Building()
         {
@@ -25,7 +29,28 @@ namespace RTS.Entities.Buildings
         }
         public void BuildEntity(UnitDefinition unitDefinition, Vector3? position)
         {
-            _buildQueue.Add(DateTime.Now + TimeSpan.FromSeconds(unitDefinition.BuildTime), new Tuple<UnitType, Vector3?>(unitDefinition.UnitType, position));
+            if (position != null)
+            {
+                var vehicle = _entity.Components.FirstOrDefault(t => t is Vehicle) as Vehicle;
+                Behaviors.Clear();
+
+                var buildAtLocationBehavior = new BuildAtLocationBehavior(vehicle, (Vector3)position, unitDefinition.UnitType);
+                buildAtLocationBehavior.Add<Behavior>().Update = () => ClearBehaviors();
+                //buildAtLocationBehavior.Terminate = x => { ClearBehaviors(); };
+                Behaviors.Add(buildAtLocationBehavior);
+
+                vehicle.MoveToPosition((Vector3)position);
+            }
+            else
+            {
+                _buildQueue.Add(DateTime.Now + TimeSpan.FromSeconds(unitDefinition.BuildTime), new Tuple<UnitType, Vector3?>(unitDefinition.UnitType, position));               
+            }
+        }
+
+        private BehaviorTreeLibrary.Status ClearBehaviors()
+        {
+            Behaviors.Clear();
+            return BehaviorTreeLibrary.Status.BhSuccess;
         }
 
         public List<UnitDefinition> BuildableEntities
@@ -68,6 +93,11 @@ namespace RTS.Entities.Buildings
 
         public void Tick(double deltaTime)
         {
+            for (int i = 0; i < this.Behaviors.Count; i++)
+            {
+                this.Behaviors[i].Tick(deltaTime);
+            }
+
             List<DateTime> keysToRemove = new List<DateTime>();
             foreach (var key in _buildQueue.Keys)
             {
