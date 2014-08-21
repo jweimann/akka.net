@@ -33,5 +33,6 @@ namespace RTS.Core.Enums
         FireWeapon,
         SetClientPlayerInfo,
         ModifyResources,
+        SetPathOnServer,
     }
 }

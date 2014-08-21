@@ -69,6 +69,8 @@ namespace RTS.Networking.Helios
                 return;
             }
 
+            Console.WriteLine("Sending Message to Client: " + command.ToString());
+
             var bytes = command.ToBytes();
             var networkData = new NetworkData()
             {

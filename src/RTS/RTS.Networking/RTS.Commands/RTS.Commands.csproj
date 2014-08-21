@@ -115,6 +115,7 @@
     <Compile Include="Stats\ModifyStatCommand.cs" />
     <Compile Include="Team\DestroyEntityCommand.cs" />
     <Compile Include="Units\GetPositionCommand.cs" />
+    <Compile Include="Units\SetPathCommand.cs" />
     <Compile Include="Units\SetTargetCommand.cs" />
     <Compile Include="Units\MoveUnitsCommand.cs" />
     <Compile Include="UpdateStatsCommand.cs" />

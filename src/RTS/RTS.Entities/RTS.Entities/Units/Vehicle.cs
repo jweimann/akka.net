@@ -60,7 +60,7 @@ namespace RTS.Entities.Units
 
         private void SendPathToClients(Core.Structs.Vector3 position)
         {
-            _entity.MessageTeam(new SetPathOnClientCommand() { Path = new List<Vector3>() { position }, UnitId = this._entity.Id });
+            _entity.MessageTeam(new SetPathOnClientCommand() { Path = _path, UnitId = this._entity.Id });
         }
 
         private bool PositionIsChanged(ref Core.Structs.Vector3 position)
