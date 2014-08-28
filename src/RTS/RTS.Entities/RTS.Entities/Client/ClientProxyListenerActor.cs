@@ -22,24 +22,31 @@ using System.Threading.Tasks;
 
 namespace RTS.Entities.Client
 {
-    public class ClientProxyListenerActor : TypedActor
+    public class ClientProxyListenerActor : TypedActor, IHandle<string>
     {
         private ActorSelection _clientProxyCollectionActor;
         private List<MmoNetworkClient> _clients = new List<MmoNetworkClient>();
         private Dictionary<IConnection, ActorRef> _connections = new Dictionary<IConnection, ActorRef>();
         private IPlayerFactory _factory;
         private TeamFactory _teamFactory;
+        private PathingConnectionFactory _pathingConnectionFactory;
 
         private IReactor _server;
         private IServerFactory _bootstrapper;
+        private ActorSystem _system;
+        private ActorPath _path;
         public ClientProxyListenerActor()
         {
             _clientProxyCollectionActor = Context.System.ActorSelection("akka.tcp://MyServer@localhost:8081/user/ClientProxyCollection"); ;
         }
         protected override void PreStart()
         {
+            _system = Context.System;
+            _path = this.Self.Path;
+
             _factory = new PlayerFactory(Context.System);
             _teamFactory = new TeamFactory(Context.System);
+            _pathingConnectionFactory = new PathingConnectionFactory(Context.System);
 
             var executor = new TryCatchExecutor(exception => Console.WriteLine("Unhandled exception: {0}", exception));
 
@@ -78,14 +85,28 @@ namespace RTS.Entities.Client
 
         private void AcceptClient(IConnection connection)
         {
-            var player = _factory.GetPlayer(connection);
+            var client = new RTSHeliosNetworkClient(connection);
+
+            var player = _factory.GetPlayer(client);
             long teamId;
             var team = _teamFactory.GetEntity(out teamId);
             team.Tell(new SetPlayerCommand() { PlayerActor = player }); // Tell the team what it's player actor is
             player.Tell(new SetTeamCommand() { TeamActor = team }); // Tell the player what it's team actor is
 
             _connections.Add(connection, player);
+
+            var pathingConnection = _pathingConnectionFactory.GetActor(client); 
+
+            //var selfActorSelection = _system.ActorSelection(_path);
+            //selfActorSelection.Tell(player.Path);
+
         }
 
+
+        public void Handle(string message)
+        {
+            var pathingActor = Context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/PathingActor");
+            pathingActor.Tell(message);
+        }
     }
 }

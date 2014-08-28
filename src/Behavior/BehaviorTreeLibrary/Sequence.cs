@@ -15,6 +15,10 @@ namespace BehaviorTreeLibrary
                          {
                              for (;;)
                              {
+                                 if (ChildCount == 0)
+                                 {
+                                     return BehaviorTreeLibrary.Status.BhInvalid;
+                                 }
                                  Status s = GetChild(_sequence).Tick(this.DeltaTime);
                                  if (s != Status.BhSuccess)
                                  {

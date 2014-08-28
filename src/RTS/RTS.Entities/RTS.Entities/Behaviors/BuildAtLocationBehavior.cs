@@ -1,4 +1,5 @@
-﻿using BehaviorTreeLibrary;
+﻿using Akka.Actor;
+using BehaviorTreeLibrary;
 using RTS.Commands.Buildings;
 using RTS.Core.Enums;
 using RTS.Core.Structs;
@@ -16,11 +17,13 @@ namespace RTS.Entities.Behaviors
         private Vehicle _vehicle;
         private Vector3 _destination;
         private UnitType _unitType;
-        public BuildAtLocationBehavior(Vehicle vehicle, Vector3 destination, UnitType unitType)
+        private IActorContext _context;
+        public BuildAtLocationBehavior(Vehicle vehicle, Vector3 destination, UnitType unitType, object actorContext)
         {
             _vehicle = vehicle;
             _destination = destination;
             _unitType = unitType;
+            _context = actorContext as IActorContext;
 
             this.AddCondition(ReachedDestination)
                 .AddBehavior(BuildEntity)
@@ -32,10 +35,10 @@ namespace RTS.Entities.Behaviors
         private bool ReachedDestination()
         {
             float dist = Vector3.Distance(_vehicle.GetPosition(), _destination);
-            return dist <= _vehicle.GetMoveThreshhold();
+            return dist <= _vehicle.GetBuildRangeThreshhold();
         }
 
-        private Status BuildEntity()
+        private BehaviorTreeLibrary.Status BuildEntity()
         {
             float dist2 = Vector3.Distance(_vehicle.GetPosition(), _destination);
             Console.WriteLine("Reached Destination.  Distance " + dist2.ToString());
@@ -44,7 +47,7 @@ namespace RTS.Entities.Behaviors
             return BehaviorTreeLibrary.Status.BhSuccess;
         }
 
-        private Status StopVehilcle()
+        private BehaviorTreeLibrary.Status StopVehilcle()
         {
             _vehicle.Stop();
             return BehaviorTreeLibrary.Status.BhSuccess;

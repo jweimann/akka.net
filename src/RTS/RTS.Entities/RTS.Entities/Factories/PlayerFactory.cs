@@ -20,11 +20,10 @@ namespace RTS.Entities.Factories
         {
             _context = context;
         }
-        public ActorRef GetPlayer(IConnection connection)
+        public ActorRef GetPlayer(RTSHeliosNetworkClient client)
         {
             List<IPlayerComponent> args = new List<IPlayerComponent>();
 
-            var client = new RTSHeliosNetworkClient(connection);
             args.Add(new ClientController(client));
             //args.Add(new Team(_context));
 

@@ -98,7 +98,9 @@
     <Compile Include="Factories\BuildingFactory.cs" />
     <Compile Include="Factories\IActorFactory.cs" />
     <Compile Include="Factories\IEntityFactory.cs" />
+    <Compile Include="Factories\IPathingConnectionFactory.cs" />
     <Compile Include="Factories\IPlayerFactory.cs" />
+    <Compile Include="Factories\PathingConnectionFactory.cs" />
     <Compile Include="Factories\PlayerFactory.cs" />
     <Compile Include="Factories\TeamFactory.cs" />
     <Compile Include="Factories\UnitFactory.cs" />
@@ -160,6 +162,10 @@
       <Project>{b2c7ec80-fd4c-4211-b940-349d47d28788}</Project>
       <Name>RTS.Repository.Interfaces</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\RTS.Networking\RTS.ActorRequests\RTS.ActorRequests\RTS.ActorRequests.csproj">
+      <Project>{ea1a1449-1447-42cf-94f0-3db7d0c337aa}</Project>
+      <Name>RTS.ActorRequests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\RTS.Networking\RTS.Commands\RTS.Commands.csproj">
       <Project>{6fc5ce53-9259-47ba-b038-0df100079dd2}</Project>
       <Name>RTS.Commands</Name>
@@ -171,6 +177,10 @@
     <ProjectReference Include="..\..\RTS.Networking\RTS.Networking.Interfaces\RTS.Networking.Interfaces.csproj">
       <Project>{a6aa7149-25c8-4dbe-ace9-98fdd7661d38}</Project>
       <Name>RTS.Networking.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\RTS.Pathfinding\RTS.Pathfinding\RTS.Pathfinding.csproj">
+      <Project>{df0fc799-0705-42e4-9981-3f433bcbb6d7}</Project>
+      <Name>RTS.Pathfinding</Name>
     </ProjectReference>
     <ProjectReference Include="..\RTS.Entities.Interfaces\RTS.Entities.Interfaces.csproj">
       <Project>{3a4143da-d595-4d8b-b0fb-341a1b91b498}</Project>

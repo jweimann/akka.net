@@ -8,8 +8,8 @@ using System.Text;
 
 namespace RTS.Entities.Factories
 {
-    public interface IPlayerFactory
+    public interface IPathingConnectionFactory
     {
-        ActorRef GetPlayer(RTSHeliosNetworkClient client);
+        ActorRef GetActor(RTSHeliosNetworkClient client);
     }
 }

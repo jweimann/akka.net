@@ -16,6 +16,7 @@ using RTS.Entities.Interfaces;
 using RTS.Entities.Interfaces.Stats;
 using RTS.Entities.Movement;
 using RTS.Entities.Requests;
+using RTS.Pathfinding;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -278,6 +279,7 @@ akka {
         private static void DoTempSetup(ActorSystem system)
         {
             //system.ActorOf<AreaOfInterestCollectionActor>("AreaOfInterestCollection");
+            system.ActorOf<PathingActor>("PathingActor");
             system.ActorOf<ClientProxyListenerActor>("ClientProxyListener");
 
             //NPCEntityFactory npcFactory = new NPCEntityFactory(system);

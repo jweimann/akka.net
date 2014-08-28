@@ -24,6 +24,7 @@ namespace RTS.Entities.Units
         private IEntity _entity;
         private List<Vector3> _path;
         private float _moveThreshhold = 0.25f;
+        private float _buildRangeThreshhold = 1.50f; // Distance from point to build at it
         private float _attackRange = 25f;
         private float _speed = 5f;
         private Vector3 _destination;
@@ -36,11 +37,17 @@ namespace RTS.Entities.Units
         }
         public void MoveToPosition(Core.Structs.Vector3 position)
         {
-            Behaviors.Clear();
-            Behaviors.Add(new MoveToLocationBehavior(this, position));
+            if (Behaviors.Any(t=> t is MoveToLocationBehavior && ((MoveToLocationBehavior)t).Destination == position))
+            {
+                return; // Destination already set.
+            }
+            Behaviors.RemoveAll(t=> t is MoveToLocationBehavior);
+            var behavior = new MoveToLocationBehavior(this, position, _entity.GetActorContext());
+            behavior.Initialize();
+            Behaviors.Add(behavior);
             _destination = position;
-            _path = new List<Vector3>() { position };
-            SendPathToClients(position);
+            //_path = new List<Vector3>() { position };
+            //SendPathToClients(position);
             return;
 
             if (PositionIsChanged(ref position) == false)
@@ -55,12 +62,12 @@ namespace RTS.Entities.Units
         public void Stop()
         {
             Behaviors.Clear();
-            SendPathToClients(GetPosition());
+            SendPathToClients(new List<Vector3>() { GetPosition() });
         }
 
-        private void SendPathToClients(Core.Structs.Vector3 position)
+        public void SendPathToClients(List<Core.Structs.Vector3> path)
         {
-            _entity.MessageTeam(new SetPathOnClientCommand() { Path = _path, UnitId = this._entity.Id });
+            _entity.MessageTeam(new SetPathOnClientCommand() { Path = path, UnitId = this._entity.Id });
         }
 
         private bool PositionIsChanged(ref Core.Structs.Vector3 position)
@@ -101,7 +108,13 @@ namespace RTS.Entities.Units
             //Console.WriteLine("VehicleTick " + DateTime.Now.TimeOfDay.ToString() + " DeltaTime " + deltaTime);
             for (int i = 0; i < this.Behaviors.Count; i++)
             {
-                this.Behaviors[i].Tick(deltaTime); // Behaviors need to remove selves or all be on an AI component, mixing is causing conflicts where they fight back and forth
+                try
+                {
+                    this.Behaviors[i].Tick(deltaTime); // Behaviors need to remove selves or all be on an AI component, mixing is causing conflicts where they fight back and forth
+                } catch (Exception ex)
+                {
+                    Console.WriteLine("ERROR: " + ex.ToString());
+                }
             }
            
 
@@ -246,6 +259,11 @@ namespace RTS.Entities.Units
         internal void SendCommandToTeam(Commands.Buildings.FinishBuildEntityCommand finishBuildEntityCommand)
         {
             _entity.MessageTeam(finishBuildEntityCommand);
+        }
+
+        internal float GetBuildRangeThreshhold()
+        {
+            return _buildRangeThreshhold;
         }
     }
 }

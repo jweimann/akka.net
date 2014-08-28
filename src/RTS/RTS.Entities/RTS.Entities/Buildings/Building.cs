@@ -34,7 +34,7 @@ namespace RTS.Entities.Buildings
                 var vehicle = _entity.Components.FirstOrDefault(t => t is Vehicle) as Vehicle;
                 Behaviors.Clear();
 
-                var buildAtLocationBehavior = new BuildAtLocationBehavior(vehicle, (Vector3)position, unitDefinition.UnitType);
+                var buildAtLocationBehavior = new BuildAtLocationBehavior(vehicle, (Vector3)position, unitDefinition.UnitType, _entity.GetActorContext());
                 buildAtLocationBehavior.Add<Behavior>().Update = () => ClearBehaviors();
                 //buildAtLocationBehavior.Terminate = x => { ClearBehaviors(); };
                 Behaviors.Add(buildAtLocationBehavior);

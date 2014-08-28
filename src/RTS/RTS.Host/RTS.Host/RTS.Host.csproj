@@ -126,6 +126,10 @@
       <Project>{eb475b73-76de-43fe-9396-d22327cecaea}</Project>
       <Name>RTS.Entities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\RTS.Pathfinding\RTS.Pathfinding\RTS.Pathfinding.csproj">
+      <Project>{df0fc799-0705-42e4-9981-3f433bcbb6d7}</Project>
+      <Name>RTS.Pathfinding</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

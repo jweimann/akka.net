@@ -219,13 +219,23 @@ namespace RTS.Entities.Client
         private void Initialize()
         {
             Random rand = new Random();
-            Vector3 spawnPoint = new Vector3(rand.Next(-100, 100), 0, rand.Next(-100, 100));
+            Vector3 spawnPoint = GetNextSpawnLocation();// new Vector3(rand.Next(-100, 100), 0, rand.Next(-100, 100));
             UnitDefinition definition = _repository.Get(UnitType.TruckDepot);
             SpawnUnit(definition, spawnPoint, this._teamId);
             _initialized = true;
         }
 
-    
+        private List<Vector3> _spawnLocations = new List<Vector3>() { new Vector3(-38.2f, 0f, -16.25f), new Vector3(133.75f, 0f, 2.5f) };
+        private static int _nextSpawnLocationIndex = 0; //TODO: Make this real
+        private Vector3 GetNextSpawnLocation()
+        {
+            Vector3 spawnLoc = _spawnLocations[_nextSpawnLocationIndex];
+            _nextSpawnLocationIndex++;
+            if (_nextSpawnLocationIndex >= _spawnLocations.Count)
+                _nextSpawnLocationIndex = 0;
+
+            return spawnLoc;
+        }
 
         public void AddEntity(long entityId, string name, Vector3 position, object sender)
         {

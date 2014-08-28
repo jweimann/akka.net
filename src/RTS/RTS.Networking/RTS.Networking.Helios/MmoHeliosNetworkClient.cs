@@ -94,7 +94,7 @@ namespace RTS.Networking.Helios
             //    return; // Don't send server only commands to a client.
             //}
 
-            if (_connection.IsOpen() == false)// || _connection.Available == 0)
+            if (_connection == null || _connection.IsOpen() == false)// || _connection.Available == 0)
             {
                 return;
             }
