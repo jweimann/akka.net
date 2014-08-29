@@ -54,7 +54,7 @@ namespace Akka.Dispatch
         /// <summary>
         ///     Stops this instance.
         /// </summary>
-        public abstract void Stop();
+        public abstract void BecomeClosed();
 
         /// <summary>
         ///     Attaches a MessageDispatcher to the Mailbox.
@@ -118,6 +118,13 @@ namespace Akka.Dispatch
 
         protected abstract int GetNumberOfMessages();
 
+        internal bool HasMessages
+        {
+            get
+            {
+                return NumberOfMessages > 0;
+            }
+        }
         internal int NumberOfMessages
         {
             get
@@ -142,5 +149,6 @@ namespace Akka.Dispatch
         protected abstract void Schedule();
 
 
+        public abstract void CleanUp();
     }   
 }

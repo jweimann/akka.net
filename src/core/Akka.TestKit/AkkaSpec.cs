@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit.Sdk;
 
 namespace Akka.Tests
 {
@@ -32,9 +33,9 @@ namespace Akka.Tests
             Xunit.Assert.True(self.SequenceEqual(other), "Expected " + other.Select(i => string.Format("'{0}'", i)).Join(",") + " got " + self.Select(i => string.Format("'{0}'", i)).Join(","));
         }
 
-        public static void ShouldBe<T>(this T self, T other, string message = null)
+        public static void ShouldBe<T>(this T actual, T expected, string message = null)
         {
-            Xunit.Assert.Equal(self, other);
+            Xunit.Assert.Equal(expected, actual);
         }
 
         public static void ShouldOnlyContainInOrder<T>(this IEnumerable<T> actual, params T[] expected)
@@ -124,6 +125,7 @@ namespace Akka.Tests
 
         public AkkaSpec()
         {
+
             var config = ConfigurationFactory.ParseString(GetConfig());
             queue = new BlockingCollection<object>();
             messages = new List<object>();
@@ -134,7 +136,7 @@ namespace Akka.Tests
 
         protected virtual string GetConfig()
         {
-            return "";
+            return ""+"";
         }
 
         public virtual void Dispose()
@@ -237,6 +239,12 @@ namespace Akka.Tests
             Xunit.Assert.True(actual is TMessage, string.Format("expected message of type {0} but received {1} instead", typeof(TMessage), actual.GetType()));
 
             return default(TMessage);
+        }
+
+        protected T AwaitResult<T>(Task<object> ask, TimeSpan timeout)
+        {
+            ask.Wait(timeout);
+            return (T)ask.Result;
         }
 
         /// <summary>
@@ -471,7 +479,7 @@ namespace Akka.Tests
             protected override void OnReceive(object message)
             {
                 Sender.Tell(message, Self);
-                _testActor.Tell(message, Sender);
+                _testActor.Forward(message);
             }
         }
 
@@ -502,6 +510,30 @@ namespace Akka.Tests
             Xunit.Assert.True(false, "Expected exception of type " + typeof(T).Name);
         }
 
+        protected void FilterEvents(ActorSystem system, EventFilter[] eventFilters, Action action)
+        {
+            sys.EventStream.Publish(new Mute(eventFilters));
+            try
+            {
+                action();
+
+                var leeway = TestKitSettings.TestEventFilterLeeway;
+                var failed = eventFilters
+                    .Where(x => !x.AwaitDone(leeway))
+                    .Select(x => string.Format("Timeout {0} waiting for {1}", leeway, x))
+                    .ToArray();
+
+                if (failed.Any())
+                {
+                    throw new AssertException("Filter completion error: " + string.Join("\n", failed));
+                }
+            }
+            finally
+            {
+                sys.EventStream.Publish(new Unmute(eventFilters));
+            }
+        }
+
         protected void EventFilter<T>(string message, int occurances, Action intercept) where T : Exception
         {
             sys.EventStream.Subscribe(testActor, typeof(Error));
@@ -516,6 +548,20 @@ namespace Akka.Tests
             }
         }
 
+        protected void EventFilterLog<T>(string message, int occurences, Action intercept) where T : LogEvent
+        {
+            sys.EventStream.Subscribe(testActor, typeof(T));
+            intercept();
+            for (int i = 0; i < occurences; i++)
+            {
+                var res = queue.Take();
+                var error = (LogEvent)res;
+
+                Xunit.Assert.Equal(typeof(T), error.GetType());
+                var match = -1 != error.Message.ToString().IndexOf(message, StringComparison.CurrentCultureIgnoreCase);
+                Xunit.Assert.True(match);
+            }
+        }
 
         protected TestProbe TestProbe()
         {

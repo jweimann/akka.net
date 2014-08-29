@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Akka.Dispatch;
 using Akka.Dispatch.SysMsg;
 using Akka.Event;
@@ -18,10 +19,6 @@ namespace Akka.Actor
     {
         //terminatedqueue should never be used outside the message loop
         private readonly HashSet<ActorRef> terminatedQueue = new HashSet<ActorRef>();
-        /// <summary>
-        ///     The watched by
-        /// </summary>
-        private readonly BroadcastActorRef WatchedBy = new BroadcastActorRef();
 
         /// <summary>
         ///     The is terminating
@@ -86,7 +83,10 @@ namespace Akka.Actor
                 Mailbox.Suspend();
                 Parent.Tell(new Failed(Self, cause));
             }
-
+            finally
+            {
+                CheckReceiveTimeout(); // Reschedule receive timeout
+            }
         }
 
 
@@ -168,32 +168,6 @@ namespace Akka.Actor
         }
 
         /// <summary>
-        ///     Receiveds the terminated.
-        /// </summary>
-        /// <param name="m">The m.</param>
-        private void ReceivedTerminated(Terminated m)
-        {
-            if (terminatedQueue.Contains(m.ActorRef))
-            {
-                terminatedQueue.Remove(m.ActorRef);
-                this.ReceiveMessage(m);
-            }
-
-            ////TODO: we can get here from actors that we just watch, we should not try to stop things if we are not the parent of the actor(?)
-            //InternalActorRef child = Child(m.ActorRef.Path.Name);
-            //if (!child.IsNobody()) //this terminated actor is a valid child
-            //{
-            //    Stop(child); //unhooks the child from the supervisor container
-            //}
-            //if (System.Settings.DebugLifecycle)
-            //    Publish(new Debug(Self.Path.ToString(), Actor.GetType(),
-            //        string.Format("Terminated actor: {0}", m.ActorRef.Path)));
-
-            //
-            
-        }
-
-        /// <summary>
         ///     Systems the invoke.
         /// </summary>
         /// <param name="envelope">The envelope.</param>
@@ -210,12 +184,12 @@ namespace Akka.Actor
                         .Match()
                         .With<CompleteFuture>(HandleCompleteFuture)
                         .With<Failed>(HandleFailed)
-                        .With<DeathWatchNotification>(WatchedActorTerminated)
+                        .With<DeathWatchNotification>(m => WatchedActorTerminated(m.Actor, m.ExistenceConfirmed, m.AddressTerminated))
                         .With<Create>(HandleCreate)
                         //TODO: see """final def init(sendSupervise: Boolean, mailboxType: MailboxType): this.type = {""" in dispatch.scala
                         //case Create(failure) ⇒ create(failure)
-                        .With<Watch>(HandleWatch)
-                        .With<Unwatch>(HandleUnwatch)
+                        .With<Watch>(m => AddWatcher(m.Watchee, m.Watcher))
+                        .With<Unwatch>(m => RemWatcher(m.Watchee, m.Watcher))
                         .With<Recreate>(FaultRecreate)
                         .With<Suspend>(FaultSuspend)
                         .With<Resume>(FaultResume)
@@ -268,46 +242,6 @@ namespace Akka.Actor
             Mailbox.Suspend();
         }
 
-        /// <summary>
-        ///     Watcheds the actor terminated.
-        /// </summary>
-        /// <param name="m">The m.</param>
-        private void WatchedActorTerminated(DeathWatchNotification m)
-        {
-            // AKKA:
-            //        if (watchingContains(actor)) {
-            //  maintainAddressTerminatedSubscription(actor) {
-            //    watching = removeFromSet(actor, watching)
-            //  }
-            //  if (!isTerminating) {
-            //    self.tell(Terminated(actor)(existenceConfirmed, addressTerminated), actor)
-            //    terminatedQueuedFor(actor)
-            //  }
-            //}
-            //if (childrenRefs.getByRef(actor).isDefined) handleChildTerminated(actor)
-            var actor = m.Actor;
-            if(WatchingContains(actor))
-            {
-                watchees.Remove(actor);
-                if (!isTerminating)
-                {
-                    //TODO: what params should be used for the bools?
-
-                    Self.Tell(new Terminated(actor,true,false), actor);
-                    TerminatedQueueFor(actor);
-                }
-            }
-            if (children.ContainsKey(actor.Path.Name))
-            {
-                HandleChildTerminated(actor);
-            }
-        }
-
-        private bool WatchingContains(ActorRef actor)
-        {
-            return watchees.Contains(actor);
-        }
-
         private void TerminatedQueueFor(ActorRef actorRef)
         {
             terminatedQueue.Add(actorRef);
@@ -324,33 +258,6 @@ namespace Akka.Actor
             //global::System.Diagnostics.Debug.WriteLine("removed child " + actor.Path.Name);
             //global::System.Diagnostics.Debug.WriteLine("count " + Children.Count());
         }
-
-
-        /*
-protected def terminate() {
-  
-    // prevent Deadletter(Terminated) messages
-    unwatchWatchedActors(actor)
-
-    // stop all children, which will turn childrenRefs into TerminatingChildrenContainer (if there are children)
-    children foreach stop
-
-    val wasTerminating = isTerminating
-
-    if (setChildrenTerminationReason(ChildrenContainer.Termination)) {
-      if (!wasTerminating) {
-        // do not process normal messages while waiting for all children to terminate
-        suspendNonRecursive()
-        // do not propagate failures during shutdown to the supervisor
-        setFailed(self)
-        if (system.settings.DebugLifecycle) publish(Debug(self.path.toString, clazz(actor), "stopping"))
-      }
-    } else {
-      setTerminated()
-      finishTerminate()
-    }
-  }
-         */
 
         /// <summary>
         ///     Terminates this instance.
@@ -398,9 +305,17 @@ protected def terminate() {
                         () => Publish(new Error(x, Self.Path.ToString(), ActorType, x.Message)));
                 }
             }
-            var mailbox = Mailbox;
-            Mailbox = System.Mailboxes.DeadLetterMailbox;
-            mailbox.Stop();
+            //TODO: Akka Jvm: this is done in a call to dispatcher.detach()
+            {
+                //TODO: Akka Jvm: this is done in a call to MessageDispatcher.detach()
+                {
+                    var mailbox = Mailbox;
+                    var deadLetterMailbox = System.Mailboxes.DeadLetterMailbox;
+                    SwapMailbox(deadLetterMailbox);
+                    mailbox.BecomeClosed();
+                    mailbox.CleanUp();
+                }
+            }
             Parent.Tell(new DeathWatchNotification(Self, true, false));
             TellWatchersWeDied();
             UnwatchWatchedActors(a);
@@ -410,6 +325,11 @@ protected def terminate() {
             ClearActor();
             ClearActorCell();
             _actor = null;
+        }
+
+        public void SwapMailbox(DeadLetterMailbox mailbox)
+        {
+            Interlocked.Exchange(ref _mailbox, mailbox);
         }
 
         /// <summary>
@@ -424,6 +344,7 @@ protected def terminate() {
             }
             catch
             {
+                //TODO: Hmmm?
             }
         }
 
@@ -439,52 +360,9 @@ protected def terminate() {
             }
             catch
             {
+                //TODO: Hmmm?
             }
         }
-
-        /// <summary>
-        ///     Tries the catch.
-        /// </summary>
-        /// <param name="action">The action.</param>
-        private void TryCatch(Action action)
-        {
-            try
-            {
-                action();
-            }
-            catch
-            {
-            }
-        }
-
-        /// <summary>
-        ///     Tells the watchers we died.
-        /// </summary>
-        private void TellWatchersWeDied()
-        {
-            WatchedBy.Tell(new DeathWatchNotification(Self, true, false));
-        }
-
-        /// <summary>
-        ///     Unwatches the watched actors.
-        /// </summary>
-        /// <param name="actorBase">The actor base.</param>
-        private void UnwatchWatchedActors(ActorBase actorBase)
-        {
-            try
-            {
-                foreach (ActorRef watchee in watchees)
-                {
-                    watchee.Tell(new Unwatch(watchee, Self));
-                }
-            }
-            finally
-            {
-                watchees.Clear();
-                terminatedQueue.Clear();
-            }
-        }
-
 
         private void Supervise(ActorRef child, bool async)
         {
@@ -557,6 +435,7 @@ protected def terminate() {
                 var instance = NewActor();
                 _actor = instance;
                 UseThreadContext(() => instance.AroundPreStart());
+                CheckReceiveTimeout();
                 if(System.Settings.DebugLifecycle)
                     Publish(new Debug(Self.Path.ToString(),instance.GetType(),"Started ("+instance+")"));
             }
@@ -642,7 +521,7 @@ protected def terminate() {
         {
             //try
             //{
-            Self.Tell(new Terminate());
+            Self.Tell(Akka.Dispatch.SysMsg.Terminate.Instance);
             //}
             //catch
             //{
@@ -657,7 +536,7 @@ protected def terminate() {
             if (isTerminating)
                 return;
 
-            Self.Tell(new Suspend());
+            Self.Tell(Akka.Dispatch.SysMsg.Suspend.Instance);
         }
 
         /// <summary>
@@ -678,47 +557,6 @@ protected def terminate() {
             bool handled = _actor.SupervisorStrategyLazy().HandleFailure(this, m.Child, m.Cause);
             if (!handled)
                 throw m.Cause;
-        }
-
-        /// <summary>
-        ///     Handles the watch.
-        /// </summary>
-        /// <param name="m">The m.</param>
-        private void HandleWatch(Watch m)
-        {
-            var watchee = m.Watchee;    //The actor to watch
-            var watcher = m.Watcher;    //The actor that watches
-            var self = Self;
-            var watcheeIsSelf = watchee == self;
-            var watcherIsSelf = watcher == self;
-            if(watcheeIsSelf && !watcherIsSelf) //Check if someone else is trying to watch us
-            {
-                if(WatchedBy.TryAdd(m.Watcher))
-                {
-                    //TODO: Missing call to maintainAddressTerminatedSubscription
-                    if(System.Settings.DebugLifecycle)
-                        Publish(new Debug(Self.Path.ToString(), ActorType, "now watched by " + m.Watcher));
-                }
-            }
-            else if(!watcheeIsSelf && watcherIsSelf)  
-            {
-                Watch(watchee);
-            }
-            else
-            {
-                Publish(new Warning(self.Path.ToString(), ActorType, string.Format("BUG: illegal Watch({0},{1}) for {2}", watchee, watcher, self)));
-            }
-        }
-
-        //TODO: find out why this is never called
-        /// <summary>
-        ///     Handles the unwatch.
-        /// </summary>
-        /// <param name="m">The m.</param>
-        private void HandleUnwatch(Unwatch m)
-        {
-            WatchedBy.Remove(m.Watcher);
-            terminatedQueue.Remove(m.Watchee);
         }
 
         /// <summary>
