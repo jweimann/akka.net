@@ -87,7 +87,7 @@ namespace RTS.Entities
 
         protected override void PostStop()
         {
-            _cancellationTokenSource.Cancel();
+            //_cancellationTokenSource.Cancel(false);
             base.PostStop();
         }
         private void TurnAround()

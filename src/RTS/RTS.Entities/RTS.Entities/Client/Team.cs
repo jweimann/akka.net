@@ -360,7 +360,13 @@ namespace RTS.Entities.Client
             }
 
             ActorRef actor = this.EntityActors[entityId] as ActorRef;
-            bool stopped = await actor.GracefulStop(TimeSpan.FromSeconds(1));
+            try
+            {
+                bool stopped = await actor.GracefulStop(TimeSpan.FromSeconds(1));
+            } catch (Exception ex)
+            {
+
+            }
             this.EntityActors.Remove(entityId);
             
             SendCommandToAllPlayers(new DestroyEntityCommand() { EntityId = entityId });
