@@ -18,6 +18,7 @@ namespace RTS.Entities.Stats
         private bool _dirty;
         private IEntity _entity;
         private Dictionary<StatId, int> _stats = new Dictionary<StatId, int>();
+        private Dictionary<StatId, int> _statsMax = new Dictionary<StatId, int>();
         public int HP { get; private set; }
         
         public Stats(UnitDefinition unitDefinition)
@@ -25,6 +26,10 @@ namespace RTS.Entities.Stats
             HP = unitDefinition.StartingHP;
             _stats.Add(StatId.HP, HP);
             _stats.Add(StatId.Mana, 45);
+
+            _statsMax.Add(StatId.HP, HP);
+            _statsMax.Add(StatId.Mana, 45);
+
             _dirty = true;
         }
         public void HandleMessage(object message)
@@ -55,10 +60,15 @@ namespace RTS.Entities.Stats
             if (_dirty)
             {
                 _dirty = false;
-                _entity.MessageTeam(new UpdateStatsCommand() { StatIds = new StatId[] { StatId.HP }, Values = new int[] { this.GetStat(StatId.HP) }, EntityId = _entity.Id });
+                _entity.MessageTeam(new UpdateStatsCommand() { StatIds = new StatId[] { StatId.HP }, Values = new int[] { this.GetStat(StatId.HP) }, Max = new int[] { this.GetStatMax(StatId.HP) }, EntityId = _entity.Id });
 
                 //AreaOfInterest.Tell(new UpdateStatsCommand() { StatIds = new StatId[] { StatId.HP }, Values = new int[] { this.HP }, EntityId = _entity.Id });
             }
+        }
+
+        private int GetStatMax(StatId statId)
+        {
+            return _statsMax[statId];
         }
 
         public void TakeDamage(int damage)
@@ -72,12 +82,13 @@ namespace RTS.Entities.Stats
         }
 
 
-        public void SetStat(StatId statId, int value)
+        public void SetStat(StatId statId, int value, int max)
         {
             if (_stats.ContainsKey(statId) == false)
                 return;
 
             _stats[statId] = value;
+            _statsMax[statId] = max;
 
             CheckHP();
 
@@ -92,11 +103,11 @@ namespace RTS.Entities.Stats
             }
         }
 
-        public UpdateStatsCommand GetUpdateStatsCommand()
-        {
-            UpdateStatsCommand command = new UpdateStatsCommand() { EntityId = this._entity.Id, StatIds = _stats.Keys.ToArray(), Values = _stats.Values.ToArray() };
-            return command;
-        }
+        //public UpdateStatsCommand GetUpdateStatsCommand()
+        //{
+        //    UpdateStatsCommand command = new UpdateStatsCommand() { EntityId = this._entity.Id, StatIds = _stats.Keys.ToArray(), Values = _stats.Values.ToArray() };
+        //    return command;
+        //}
 
         public void MessageComponents(object message)
         {

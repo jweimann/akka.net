@@ -11,13 +11,14 @@ namespace RTS.Commands.Stats
     {
         public StatId StatId { get; set; }
         public int Amount { get; set; }
+        public int Max { get; set; }
 
 
         public override void Execute(IStats target)
         {
             int currentValue = target.GetStat(this.StatId);
             int newValue = currentValue + this.Amount;
-            target.SetStat(this.StatId, newValue);
+            target.SetStat(this.StatId, newValue, this.Max);
         }
 
         public override bool CanExecute(IStats target)

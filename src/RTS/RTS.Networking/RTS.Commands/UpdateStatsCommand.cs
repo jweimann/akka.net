@@ -18,12 +18,13 @@ namespace RTS.Commands
         public Int64 EntityId { get; set; }
         public StatId[] StatIds { get; set; }
         public int[] Values { get; set; } // Need to figure out how I want to deal with different data types
+        public int[] Max { get; set; } // Need to figure out how I want to deal with different data types
 
         public override void Execute(IStats target)
         {
             for (int i = 0; i < StatIds.Length; i++)
             {
-                target.SetStat(StatIds[i], Values[i]);
+                target.SetStat(StatIds[i], Values[i], Max[i]);
             }
         }
         public override bool CanExecute(IStats target)

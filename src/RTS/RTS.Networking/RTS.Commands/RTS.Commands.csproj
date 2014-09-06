@@ -88,6 +88,7 @@
   <ItemGroup>
     <Compile Include="Base\EntityControllerCommand.cs" />
     <Compile Include="Buildings\BuildEntityCommand.cs" />
+    <Compile Include="Buildings\UpdateBuildProgressCommand.cs" />
     <Compile Include="Buildings\FinishBuildEntityCommand.cs" />
     <Compile Include="Client\SetPathOnClientCommand.cs" />
     <Compile Include="CommandExtensions.cs" />

@@ -12,5 +12,7 @@ namespace RTS.Core.Enums
         StugIII,
         Harvester,
         Engineer,
+        M730A1_L,
+        BaseStation,
     }
 }

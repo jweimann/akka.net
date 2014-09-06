@@ -56,6 +56,7 @@ namespace RTS.Entities.Client
             switch(unitDefinition.UnitType)
             {
                 case UnitType.TruckDepot:
+                case UnitType.BaseStation:
                 case UnitType.Harvester:
                     unit = _buildingFactory.GetEntity(new SpawnEntityData() { UnitType = unitDefinition.UnitType, Position = position, TeamId = this._teamId }, out entityId);
                     break;
@@ -90,6 +91,11 @@ namespace RTS.Entities.Client
             });
 
    
+        private void DebugSendBuildingCommandToPlayer(object message)
+        {
+            SendCommandToAllPlayers(message);
+        }
+
         public void HandleMessage(object message)
         {
             //Console.WriteLine("Team recieved message" + message.ToString());
@@ -109,6 +115,7 @@ namespace RTS.Entities.Client
                 .WithClient<IEntityController>(() => SendCommandToAllPlayers(message))
                 .WithClient<IStats>(() => SendCommandToAllPlayers(message))
                 .WithClient<IWeapon>(() => SendCommandToAllPlayers(message))
+                .WithClient<IBuilding>(() => DebugSendBuildingCommandToPlayer(message)) // should this only go to the owner not all?  might need to update percents on everyone for visuals?
                 ;
 
             //if (message is IMmoCommand<ITeam>)
@@ -220,7 +227,7 @@ namespace RTS.Entities.Client
         {
             Random rand = new Random();
             Vector3 spawnPoint = GetNextSpawnLocation();// new Vector3(rand.Next(-100, 100), 0, rand.Next(-100, 100));
-            UnitDefinition definition = _repository.Get(UnitType.TruckDepot);
+            UnitDefinition definition = _repository.Get(UnitType.BaseStation);
             SpawnUnit(definition, spawnPoint, this._teamId);
             _initialized = true;
         }
@@ -274,7 +281,7 @@ namespace RTS.Entities.Client
 
         public void SpawnEntity(string name, Vector3 position, long entityId, long teamId)
         {
-            var definition = _repository.Get(UnitType.TruckDepot);
+            var definition = _repository.Get(UnitType.BaseStation);
             SpawnUnit(definition, position, teamId);
         }
 

@@ -50,6 +50,10 @@ namespace RTS.Pathfinding
                 if (path != null && path.Count > 0)
                     break;
             }
+            if (path == null || path.Count == 0)
+            {
+                //throw new Exception("Unable to get a path to destination " + request.Destination);
+            }
             return path;
         }
     }

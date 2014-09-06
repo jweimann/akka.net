@@ -34,27 +34,6 @@ namespace RTS.Commands.Client
             get { return Core.Enums.Destination.Client; }
         }
 
-        //Core.Enums.CommandId IMmoCommand<IVehicle>.CommandId
-        //{
-        //    get { return Core.Enums.CommandId.SetPathOnClient; }
-        //}
-
-        //Core.Enums.Destination IMmoCommand<IVehicle>.CommandDestination
-        //{
-        //    get { return Core.Enums.Destination.Client; }
-        //}
-
-        //void IMmoCommand<IVehicle>.Execute(IVehicle target)
-        //{
-        //    target.SetPath(this.Path);
-        //}
-
-        //bool IMmoCommand<IVehicle>.CanExecute(IVehicle target)
-        //{
-        //    return true;
-        //}
-
-
         public bool TellClient
         {
             get { return true; }
@@ -65,6 +44,9 @@ namespace RTS.Commands.Client
             get { return false; }
         }
 
-     
+        public override string ToString()
+        {
+            return String.Format("Type: {0} UnitId: {1} PathCount: {2} CommandDestination: {3}", GetType().ToString(), this.UnitId, Path.Count, this.CommandDestination.ToString());
+        }
     }
 }

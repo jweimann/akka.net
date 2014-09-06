@@ -12,11 +12,13 @@ namespace RTS.Commands.Units
     [Serializable]
     public class MoveUnitsCommand : MmoCommand<IVehicle>, IVehicleCommand
     {
-        //public List<long> EntityIds { get; set; }
+        private float CONSIDERED_EQUAL_DISTANCE = 3.1f;
         public Vector3 Position { get; set; }
 
         public override void Execute(IVehicle target)
         {
+            Console.WriteLine("Executing MoveUnitsCommand Position: " + this.Position.ToRoundedString());
+
             target.ClearTarget();
             target.MoveToPosition(this.Position);
         }
@@ -62,11 +64,9 @@ namespace RTS.Commands.Units
 
         void IMmoCommand<IVehicle>.Execute(IVehicle target)
         {
-            foreach (long entityId in this.EntityIds)
-            {
-                target.ClearTarget();
-                target.MoveToPosition(this.Position);
-            }
+            Console.WriteLine("Executing MoveUnitsCommand Position: " + this.Position.ToRoundedString());
+            target.ClearTarget();
+            target.MoveToPosition(this.Position);
         }
 
         bool IMmoCommand<IVehicle>.CanExecute(IVehicle target)
@@ -75,5 +75,23 @@ namespace RTS.Commands.Units
         }
 
         public long EntityId { get; set; }
+
+        
+        public override bool Equals(object obj)
+        {
+            if (obj is MoveUnitsCommand == false)
+                return false;
+
+            if (((MoveUnitsCommand)obj).EntityIds.SequenceEqual(this.EntityIds))
+            {
+                var dist = Vector3.Distance(((MoveUnitsCommand)obj).Position, this.Position);
+                if (dist <= CONSIDERED_EQUAL_DISTANCE)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

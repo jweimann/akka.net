@@ -101,5 +101,15 @@ namespace RTS.Core.Structs
             Vector3 P = (double)x * (B - A).Normalized() + A;
             return P;
         }
+
+        public Vector3 WithoutHeight()
+        {
+            return new Vector3(this.x, 0, this.z);
+        }
+
+        public bool IsNan()
+        {
+            return (float.IsNaN(x) || float.IsNaN(y) || float.IsNaN(z));
+        }
     }
 }

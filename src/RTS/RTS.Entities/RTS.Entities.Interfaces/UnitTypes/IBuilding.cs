@@ -1,4 +1,5 @@
-﻿using RTS.Core.Structs;
+﻿using RTS.Core.Enums;
+using RTS.Core.Structs;
 using RTS.DataStructures;
 using System;
 using System.Collections.Generic;
@@ -12,5 +13,6 @@ namespace RTS.Entities.Interfaces.UnitTypes
         void BuildEntity(UnitDefinition unitDefinition, Vector3? position);
         List<UnitDefinition> BuildableEntities { get; set; }
         bool CanBuild(UnitDefinition unitDefinition);
+        void UpdateBuildProgress(UnitType unitType, byte percentComplete);
     }
 }

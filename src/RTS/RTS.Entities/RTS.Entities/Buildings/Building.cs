@@ -14,6 +14,7 @@ using RTS.Core.Enums;
 using RTS.Entities.Behaviors;
 using RTS.Entities.Units;
 using BehaviorTreeLibrary;
+using RTS.ContentRepository;
 
 namespace RTS.Entities.Buildings
 {
@@ -21,11 +22,14 @@ namespace RTS.Entities.Buildings
     {
         private IEntity _entity;
         private Dictionary<DateTime, Tuple<UnitType, Vector3?>> _buildQueue;
+        private UnitDefinitionRepository _repository;
+
         public List<BehaviorTreeLibrary.Behavior> Behaviors = new List<BehaviorTreeLibrary.Behavior>();
 
         public Building()
         {
             _buildQueue = new Dictionary<DateTime, Tuple<UnitType, Vector3?>>();
+            _repository = new UnitDefinitionRepository();
         }
         public void BuildEntity(UnitDefinition unitDefinition, Vector3? position)
         {
@@ -43,8 +47,14 @@ namespace RTS.Entities.Buildings
             }
             else
             {
-                _buildQueue.Add(DateTime.Now + TimeSpan.FromSeconds(unitDefinition.BuildTime), new Tuple<UnitType, Vector3?>(unitDefinition.UnitType, position));               
+                StartBuildingEntity(unitDefinition, position);
             }
+        }
+
+        private void StartBuildingEntity(UnitDefinition unitDefinition, Vector3? position)
+        {
+            _buildQueue.Add(DateTime.Now + TimeSpan.FromSeconds(unitDefinition.BuildTime), new Tuple<UnitType, Vector3?>(unitDefinition.UnitType, position));
+
         }
 
         private BehaviorTreeLibrary.Status ClearBehaviors()
@@ -53,6 +63,7 @@ namespace RTS.Entities.Buildings
             return BehaviorTreeLibrary.Status.BhSuccess;
         }
 
+        // Not used on the server right now but is used on client.  Take this off the shared interface if this isn't going to change.
         public List<UnitDefinition> BuildableEntities
         {
             get
@@ -65,9 +76,22 @@ namespace RTS.Entities.Buildings
             }
         }
 
+        private List<UnitType> BuildableUnitTypes
+        {
+            get
+            {
+                return _repository.Get(_entity.GetSpawnEntityData().UnitType).CanBuild;
+            }
+        }
+
         public bool CanBuild(UnitDefinition unitDefinition)
         {
-            return true;
+            foreach (var buildable in BuildableUnitTypes)
+            {
+                if (buildable == unitDefinition.UnitType)
+                    return true;
+            }
+            return false;
         }
 
         public void MessageComponents(object message)
@@ -99,18 +123,60 @@ namespace RTS.Entities.Buildings
             }
 
             List<DateTime> keysToRemove = new List<DateTime>();
-            foreach (var key in _buildQueue.Keys)
+            foreach (var buildCompletionTime in _buildQueue.Keys)
             {
-                if (key <= DateTime.Now)
+                var buildInfo = _buildQueue[buildCompletionTime];
+                if (buildCompletionTime <= DateTime.Now)
                 {
-                    SendBuildEntityToTeam(_buildQueue[key]);
-                    keysToRemove.Add(key);
+                    SendBuildEntityToTeam(buildInfo);
+                    keysToRemove.Add(buildCompletionTime);
+                }
+                else
+                {
+                    SendUpdateBuildProgressToClient(buildCompletionTime, buildInfo);
                 }
             }
             foreach (var keyToRemove in keysToRemove)
             {
                 _buildQueue.Remove(keyToRemove);
             }
+        }
+
+        private void SendUpdateBuildProgressToClient(DateTime buildCompletionTime, Tuple<UnitType, Vector3?> buildInfo)
+        {
+            //var unitType = buildInfo.Item1;
+
+            var definition = _repository.Get(buildInfo.Item1);
+
+            DateTime startTime = buildCompletionTime - TimeSpan.FromSeconds(definition.BuildTime); // add this to the tuple? make a datastructure?
+
+            byte percentageComplete = GetValue(DateTime.Now, startTime, buildCompletionTime, 0, 100);
+            var cmd = new UpdateBuildProgressCommand(this._entity.Id, buildInfo.Item1, percentageComplete);
+            _entity.MessagePlayer(cmd);
+        }
+
+        byte Map(long value, long minIn, long maxIn, byte minOut, byte maxOut)
+        {
+            double pct = (double)maxIn / (double)minIn;
+            var Y = (value - minIn) / (maxIn - minIn) * (maxOut - minOut) + minOut;
+            return (byte)Y;
+        }
+
+        public double GetValue(int value, int min, int max, int originalMin, int originalMax)
+        {
+            return min + (double)(value - originalMin) * (max - min) / (originalMax - originalMin);
+        }
+
+        public byte GetValue(DateTime value, DateTime min, DateTime max, int originalMin, int originalMax)
+        {
+            var valBased = value.Ticks - min.Ticks;
+            var maxBased = max.Ticks - min.Ticks;
+
+            double pct = (double)valBased / (double)maxBased;
+            var outVal = (double)originalMax * pct;
+            return (byte)outVal;
+
+            //return min + (double)(value - originalMin) * (max - min) / (originalMax - originalMin);
         }
 
         private void SendBuildEntityToTeam(Tuple<UnitType, Vector3?> buildInfo)
@@ -132,6 +198,12 @@ namespace RTS.Entities.Buildings
         public void PreStart()
         {
             //throw new NotImplementedException();
+        }
+
+
+        public void UpdateBuildProgress(UnitType unitType, byte percentComplete)
+        {
+            throw new NotImplementedException("Not yet handled on the server");
         }
     }
 }

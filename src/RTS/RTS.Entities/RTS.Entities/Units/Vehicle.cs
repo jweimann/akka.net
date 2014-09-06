@@ -37,26 +37,37 @@ namespace RTS.Entities.Units
         }
         public void MoveToPosition(Core.Structs.Vector3 position)
         {
-            if (Behaviors.Any(t=> t is MoveToLocationBehavior && ((MoveToLocationBehavior)t).Destination == position))
+            if (position == _destination)
+                return;
+
+            if (Vector3.Distance(position, _destination) < _moveThreshhold)
+                return;
+
+            if (Behaviors.Any(t=> t is MoveToLocationBehavior && 
+                (
+                    ((MoveToLocationBehavior)t).Destination.HasValue == true &&
+                    ((MoveToLocationBehavior)t).Destination.Value.WithoutHeight() == position.WithoutHeight())) // Ignore height
+                )
             {
                 return; // Destination already set.
             }
+
+            foreach(var existingBehavior in Behaviors)
+            {
+                if (existingBehavior is MoveToLocationBehavior)
+                {
+                    var behaviorDest = ((MoveToLocationBehavior)existingBehavior).RequestedDestination;
+                    var dist = Vector3.Distance(behaviorDest.WithoutHeight(), position.WithoutHeight());
+                    if (dist < _moveThreshhold)
+                        return;
+                }
+            }
+
             Behaviors.RemoveAll(t=> t is MoveToLocationBehavior);
             var behavior = new MoveToLocationBehavior(this, position, _entity.GetActorContext());
             behavior.Initialize();
             Behaviors.Add(behavior);
             _destination = position;
-            //_path = new List<Vector3>() { position };
-            //SendPathToClients(position);
-            return;
-
-            if (PositionIsChanged(ref position) == false)
-            {
-                return;
-            }
-            _destination = position;
-            _path = new List<Vector3>() { position };
-            _entity.MessageTeam(new SetPathOnClientCommand() { Path = _path, UnitId = this._entity.Id });
         }
 
         public void Stop()
@@ -103,6 +114,7 @@ namespace RTS.Entities.Units
             }
         }
 
+        private double _targettingTimer = 0f;
         public async void Tick(double deltaTime)
         {
             //Console.WriteLine("VehicleTick " + DateTime.Now.TimeOfDay.ToString() + " DeltaTime " + deltaTime);
@@ -116,22 +128,21 @@ namespace RTS.Entities.Units
                     Console.WriteLine("ERROR: " + ex.ToString());
                 }
             }
-           
 
-            if (PathIsSet())
+            _targettingTimer += deltaTime;
+            if (_targettingTimer >= 1.0)
             {
-                MoveAlongPath(deltaTime);
-            }
-
-            if (TargetIsSet())
-            {
-                if (await TargetIsAlive() == false)
+                _targettingTimer = 0f;
+                if (TargetIsSet())
                 {
-                    _targetEntityId = 0;
-                }
-                else
-                {
-                    await MoveToTargetedPosition();
+                    if (await TargetIsAlive() == false)
+                    {
+                        _targetEntityId = 0;
+                    }
+                    else
+                    {
+                        await MoveToTargetedPosition();
+                    }
                 }
             }
         }
@@ -139,20 +150,6 @@ namespace RTS.Entities.Units
         private async Task<bool> TargetIsAlive()
         {
             return await _targetEntity.Ask<bool>(EntityRequest.GetIsAlive);
-        }
-
-        private void MoveAlongPath(double deltaTime)
-        {
-            float distance = Vector3.Distance(_entity.Position, _path[0]);
-            if (distance > GetMoveThreshold())
-            {
-                Vector3 direction = (_path[0] - _entity.Position).Normalized();
-                _entity.Position += direction * _speed * deltaTime;
-            }
-            else
-            {
-                _path.RemoveAt(0); // Reached this point, remove it.
-            }
         }
 
         private bool PathIsSet()
@@ -168,8 +165,15 @@ namespace RTS.Entities.Units
         private async Task MoveToTargetedPosition()
         {
             Vector3 targetPosition = await GetTargetEntityPosition();
-            var destinationPosition = Vector3.LerpByDistance(targetPosition, this._entity.Position, GetMoveThreshold());
-            MoveToPosition(destinationPosition);
+            //var destinationPosition = Vector3.LerpByDistance(targetPosition, this._entity.Position, GetMoveThreshold());
+            //Console.WriteLine(String.Format("MOVETOTARGETEDPOSITION - Pos: {0} TargetPos: {1}",
+            //    _entity.Position.ToRoundedString(),
+            //    targetPosition.ToRoundedString()));
+
+            if (targetPosition.IsNan() == false)
+            {
+                MoveToPosition(targetPosition);
+            }
         }
 
         private float GetMoveThreshold()
@@ -204,6 +208,10 @@ namespace RTS.Entities.Units
 
         public async void SetTarget(long entityId)
         {
+            if (entityId == this._entity.Id)
+            {
+                return; // Dont' target self...
+            }
             var actorRef = await GetEntityById(entityId);
             _targetEntityId = entityId;
             _targetEntity = actorRef;
@@ -245,6 +253,14 @@ namespace RTS.Entities.Units
 
         internal void SetPosition(Vector3 currentPosition)
         {
+            if (currentPosition.IsNan())
+            {
+                throw new ArgumentOutOfRangeException("Position is NaN");
+            }
+            if (currentPosition.y > 3f)
+            {
+                //Console.WriteLine("RaisedOffGround " + currentPosition.y);
+            }
             _entity.Position = currentPosition;
             //SendPathToClients(_destination);
         }

@@ -23,7 +23,7 @@ namespace RTS.Entities.Player
 {
     public class Player : UntypedActor, IPlayer
     {
-        private const int STARTING_MONEY = 500;
+        private const int STARTING_MONEY = 1500;
 
         private RTSHeliosNetworkClient _client;
         private List<IPlayerComponent> _components;
@@ -85,6 +85,7 @@ namespace RTS.Entities.Player
                 .WithClient<IVehicle>(() => _client.SendCommand(command as MmoCommand<IVehicle>))
                 .WithClient<IWeapon>(() => _client.SendCommand(command as MmoCommand<IWeapon>))
                 .WithClient<ITeam>(() => _client.SendCommand(command as MmoCommand<ITeam>))
+                .WithClient<IBuilding>(() => _client.SendCommand(command as MmoCommand<IBuilding>))
                 ;
 
             if (command is IBuildingCommand)
@@ -120,19 +121,6 @@ namespace RTS.Entities.Player
         private int GetUnitCost(Core.Enums.UnitType unitType)
         {
             return _repository.Get(unitType).Cost;
-            switch (unitType)
-            {
-                case Core.Enums.UnitType.Truck:
-                    return 100;
-                case Core.Enums.UnitType.StugIII:
-                    return 150;
-                case Core.Enums.UnitType.TruckDepot:
-                    return 250;
-                case Core.Enums.UnitType.Engineer:
-                    return 300;
-                default:
-                    return 0;
-            }
         }
 
         private bool IsBuildEntityCommand(object command)

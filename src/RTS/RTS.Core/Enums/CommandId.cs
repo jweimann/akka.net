@@ -34,5 +34,6 @@ namespace RTS.Core.Enums
         SetClientPlayerInfo,
         ModifyResources,
         SetPathOnServer,
+        UpdateBuildProgressCommand,
     }
 }

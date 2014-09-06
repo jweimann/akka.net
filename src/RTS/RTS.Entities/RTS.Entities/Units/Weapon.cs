@@ -120,6 +120,9 @@ namespace RTS.Entities.Units
         private int _damage = -10;
         public async void SetTarget(long entityId)
         {
+            if (_entity.Id == entityId)
+                return;
+
             Console.WriteLine("SetTarget EntityId: " + entityId);
             var actorRef = await GetEntityById(entityId);
             long targetTeam = await actorRef.Ask<long>(EntityRequest.GetTeam);
