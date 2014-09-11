@@ -232,7 +232,13 @@ namespace RTS.Entities.Client
             _initialized = true;
         }
 
-        private List<Vector3> _spawnLocations = new List<Vector3>() { new Vector3(-38.2f, 0f, -16.25f), new Vector3(133.75f, 0f, 2.5f) };
+        private List<Vector3> _spawnLocations = new List<Vector3>() { 
+            new Vector3(-338.6f, 20.5f, -275.35f), 
+            new Vector3(369.25f, 20.5f, -277.45f),
+            new Vector3(318.5f, 20.5f, -389.35f), 
+            new Vector3(-327.0f, 20.5f, -328.5f)
+        };
+
         private static int _nextSpawnLocationIndex = 0; //TODO: Make this real
         private Vector3 GetNextSpawnLocation()
         {

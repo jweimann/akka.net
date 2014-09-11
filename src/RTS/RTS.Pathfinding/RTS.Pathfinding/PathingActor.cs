@@ -44,6 +44,10 @@ namespace RTS.Pathfinding
         private async Task<List<Vector3>> RequestPathFromClient(GetPathRequest request)
         {
             List<Vector3> path = null;
+            // ask last temporarily until i get the cleanup or roundrobin right.
+
+            return await _clientConnections.Last().Ask<List<Vector3>>(request);
+
             foreach(var connection in _clientConnections)
             {
                 path = await connection.Ask<List<Vector3>>(request);

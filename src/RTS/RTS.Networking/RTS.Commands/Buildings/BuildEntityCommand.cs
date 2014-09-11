@@ -27,7 +27,7 @@ namespace RTS.Commands.Buildings
       
         public override void Execute(IBuilding target)
         {
-            target.BuildEntity(new UnitDefinition() { UnitType = this.UnitTypeId, Name = this.Name, BuildTime = 3.0f }, BuildPosition);
+            target.BuildEntity(this.UnitTypeId, BuildPosition);
         }
 
         public override bool CanExecute(IBuilding target)

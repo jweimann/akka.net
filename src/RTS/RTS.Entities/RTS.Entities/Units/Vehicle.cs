@@ -26,7 +26,7 @@ namespace RTS.Entities.Units
         private float _moveThreshhold = 0.25f;
         private float _buildRangeThreshhold = 1.50f; // Distance from point to build at it
         private float _attackRange = 25f;
-        private float _speed = 5f;
+        private float _speed = 15f;
         private Vector3 _destination;
 
         List<Behavior> Behaviors = new List<Behavior>();
@@ -112,6 +112,14 @@ namespace RTS.Entities.Units
                     (message as IMmoCommand<IEntityTargeter>).Execute(this);
                 }
             }
+            if (message is EntityRequest)
+            {
+                var request = (EntityRequest)message;
+                if (request == EntityRequest.SetInWeaponRangeOfTarget)
+                {
+                    Stop(); //TODO: Change this to keep the target but pause following..
+                }
+            }
         }
 
         private double _targettingTimer = 0f;
@@ -165,10 +173,17 @@ namespace RTS.Entities.Units
         private async Task MoveToTargetedPosition()
         {
             Vector3 targetPosition = await GetTargetEntityPosition();
-            //var destinationPosition = Vector3.LerpByDistance(targetPosition, this._entity.Position, GetMoveThreshold());
-            //Console.WriteLine(String.Format("MOVETOTARGETEDPOSITION - Pos: {0} TargetPos: {1}",
-            //    _entity.Position.ToRoundedString(),
-            //    targetPosition.ToRoundedString()));
+
+           // Vector3 directionBetweenPoints = targetPosition - _entity.Position;
+           // directionBetweenPoints = directionBetweenPoints.Normalized();
+           //
+           // var weapon = _entity.Components.Where(t => t is Weapon) as Weapon;
+           // 
+           // var destinationPosition = targetPosition + (directionBetweenPoints * weapon.AttackRange);
+
+        //    Console.WriteLine(String.Format("MOVETOTARGETEDPOSITION - Pos: {0} TargetPos: {1}",
+        //        _entity.Position.ToRoundedString(),
+        //        targetPosition.ToRoundedString()));
 
             if (targetPosition.IsNan() == false)
             {

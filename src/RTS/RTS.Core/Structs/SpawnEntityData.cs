@@ -6,7 +6,7 @@ using System.Text;
 
 namespace RTS.Core.Structs
 {
-    public struct SpawnEntityData
+    public class SpawnEntityData // Struct is not getting initialized somewhere and defaulting, causing problems, want a null ref to figure out what's going on.
     {
         public string Name;
         public Vector3 Position;

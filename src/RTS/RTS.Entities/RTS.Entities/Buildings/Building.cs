@@ -31,8 +31,10 @@ namespace RTS.Entities.Buildings
             _buildQueue = new Dictionary<DateTime, Tuple<UnitType, Vector3?>>();
             _repository = new UnitDefinitionRepository();
         }
-        public void BuildEntity(UnitDefinition unitDefinition, Vector3? position)
+        public void BuildEntity(UnitType unitType, Vector3? position)
         {
+            UnitDefinition unitDefinition = _repository.Get(unitType);
+
             if (position != null)
             {
                 var vehicle = _entity.Components.FirstOrDefault(t => t is Vehicle) as Vehicle;
@@ -149,8 +151,9 @@ namespace RTS.Entities.Buildings
             var definition = _repository.Get(buildInfo.Item1);
 
             DateTime startTime = buildCompletionTime - TimeSpan.FromSeconds(definition.BuildTime); // add this to the tuple? make a datastructure?
+            DateTime now = DateTime.Now;
 
-            byte percentageComplete = GetValue(DateTime.Now, startTime, buildCompletionTime, 0, 100);
+            byte percentageComplete = GetValue(now, startTime, buildCompletionTime, 0, 100);
             var cmd = new UpdateBuildProgressCommand(this._entity.Id, buildInfo.Item1, percentageComplete);
             _entity.MessagePlayer(cmd);
         }
