@@ -20,7 +20,7 @@ namespace RTS.Entities.Factories
         public Akka.Actor.ActorRef GetActor(RTSHeliosNetworkClient client)
         {
             Props props = new Props(Deploy.Local, typeof(PathingClientConnectionActor), new List<object> { client });
-            ActorRef entity = _context.ActorOf(props, "PathingClientConnectionActor_" + client.Connection.RemoteHost.Host + DateTime.Now.Second.ToString());
+            ActorRef entity = _context.ActorOf(props, "PathingClientConnectionActor_" + client.Connection.RemoteHost.Host + DateTime.Now.Ticks.ToString());
             return entity;
         }
     }
