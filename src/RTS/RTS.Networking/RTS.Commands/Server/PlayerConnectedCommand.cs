@@ -7,26 +7,26 @@ using System.Text;
 
 namespace RTS.Commands.Server
 {
-    public class PlayerConnectedCommand : IMmoCommand<ITeam>
+    public class PlayerConnectedCommand : MmoCommand<ITeam>
     {
         public object PlayerActor { get; set; }
 
-        public void Execute(ITeam target)
+        public override void Execute(ITeam target)
         {
             target.HandlePlayerJoined(PlayerActor);
         }
 
-        public bool CanExecute(ITeam target)
+        public override bool CanExecute(ITeam target)
         {
             return true;
         }
 
-        public Core.Enums.CommandId CommandId
+        public override Core.Enums.CommandId CommandId
         {
             get { return Core.Enums.CommandId.PlayerJoined; }
         }
 
-        public Core.Enums.Destination CommandDestination
+        public override Core.Enums.Destination CommandDestination
         {
             get { return Core.Enums.Destination.Server; }
         }

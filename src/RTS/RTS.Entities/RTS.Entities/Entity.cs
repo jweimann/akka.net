@@ -258,7 +258,7 @@ namespace RTS.Entities
                         break;
                     case EntityRequest.GetSpawnData:
                         {
-                            SpawnEntityData data = new SpawnEntityData() { EntityId = this.Id, Name = this._spawnEntityData.Name, Position = this.Position, TeamId = this._spawnEntityData.TeamId };
+                            SpawnEntityData data = new SpawnEntityData() { EntityId = this.Id, Name = this._spawnEntityData.Name, Position = this.Position, TeamId = this._spawnEntityData.TeamId, UnitType = this._spawnEntityData.UnitType };
                             Sender.Tell(data);
                         }
                         break;

@@ -59,15 +59,15 @@ namespace RTS.Entities.Client
                 case UnitType.TruckDepot:
                 case UnitType.BaseStation:
                 case UnitType.Harvester:
-                    unit = _buildingFactory.GetEntity(new SpawnEntityData() { UnitType = unitDefinition.UnitType, Position = position, TeamId = this._teamId }, out entityId, out stats);
+                    unit = _buildingFactory.GetEntity(new SpawnEntityData() { UnitType = unitDefinition.UnitType, Name = unitDefinition.Name, Position = position, TeamId = this._teamId }, out entityId, out stats);
                     break;
                 default:
-                    unit = _unitFactory.GetEntity(new SpawnEntityData() { UnitType = unitDefinition.UnitType, Position = position, TeamActor = this.Self, TeamId = this._teamId }, out entityId, out stats);
+                    unit = _unitFactory.GetEntity(new SpawnEntityData() { UnitType = unitDefinition.UnitType, Name = unitDefinition.Name, Position = position, TeamActor = this.Self, TeamId = this._teamId }, out entityId, out stats);
                     break;
             }
 
             
-            SpawnEntityCommand command = new SpawnEntityCommand(position, unitDefinition.UnitType.ToString(), entityId, teamId, stats.AllValues);
+            SpawnEntityCommand command = new SpawnEntityCommand(position, unitDefinition.UnitType, entityId, teamId, stats.AllValues);
             var selection = _context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Player*");
 
             selection.Tell(command);
@@ -104,6 +104,8 @@ namespace RTS.Entities.Client
 
             HandleEntityRequest(message);
 
+            Console.WriteLine("DEBUG - TEAM RECIEVED MESSAGE: " + message.GetType().ToString());
+
             CommandMatch.Match(message)
                 .WithServer<ITeam>(() => (message as IMmoCommand<ITeam>).Execute(this))
                 .WithServer<MoveUnitsCommand>(() => HandleMoveUnitsCommand(message))
@@ -120,65 +122,6 @@ namespace RTS.Entities.Client
                 .WithClient<IBuilding>(() => DebugSendBuildingCommandToPlayer(message)) // should this only go to the owner not all?  might need to update percents on everyone for visuals?
                 ;
 
-            //if (message is IMmoCommand<ITeam>)
-            //{
-            //    if ((message as IMmoCommand<ITeam>).CanExecute(this))
-            //    {
-            //        (message as IMmoCommand<ITeam>).Execute(this);
-            //    }
-            //}
-            //else
-            /*
-            if (message is BuildEntityCommand)
-            {
-                var msg = message as BuildEntityCommand;
-                if (EntityActors.ContainsKey(msg.BuildingEntityId) == false)
-                {
-                    return; // Not my vehicle.  TODO: Log an error/cheat attempt?
-                }
-                var buildingActor = EntityActors[msg.BuildingEntityId] as ActorRef; //TODO: Will throw if you try to use the wrong team, needs to do checks here or before to make sure the entity is mine.
-
-                buildingActor.Tell(message);
-            }
-            else 
-                if (message is IMmoCommand<IEntityController>)
-            {
-                if ((message as IMmoCommand<IEntityController>).CanExecute(this))
-                {
-                    if ((message as IMmoCommand<IEntityController>).CommandDestination != Destination.Server)
-                    {
-                        var selection = _context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Player*");
-
-                        selection.Tell(message);
-                        //_playerActor.Tell(message);
-                    }
-                    //(message as IMmoCommand<IEntityController>).Execute(this); //TODO: this is an infinite loop with spawnentitycommand, after seperating from player, find a clean way for this to work.
-                }
-            }*/
-            
-            //if (message is IVehicleCommand && ((IVehicleCommand)message).TellServer)
-            //{
-            //    var msg = message as IVehicleCommand;
-            //    foreach (var entityId in msg.EntityIds)
-            //    {
-            //        if (EntityActors.ContainsKey(entityId))
-            //        {
-            //            var vehicleActor = EntityActors[entityId] as ActorRef;
-            //            vehicleActor.Tell(msg);
-            //        }
-            //    }
-            //}
-            //if (message is UpdateStatsCommand || message is FireWeaponCommand || message is IEntityComponentCommand)
-            //{
-            //    if ((message as MmoCommand).CommandDestination != Destination.Server)
-            //    {
-            //        SendCommandToAllPlayers(message);
-            //    }
-            //    else
-            //    {
-            //        SendMessageToEntities(message);
-            //    }
-            //}
           
         }
 
@@ -287,7 +230,7 @@ namespace RTS.Entities.Client
             throw new NotImplementedException();
         }
 
-        public void SpawnEntity(string name, Vector3 position, long entityId, long teamId, List<Stat> stats)
+        public void SpawnEntity(UnitType unitType, Vector3 position, long entityId, long teamId, List<Stat> stats)
         {
             // Stats not used here
             var definition = _repository.Get(UnitType.BaseStation);
@@ -358,7 +301,7 @@ namespace RTS.Entities.Client
                 SpawnEntityData spawnEntityData = await unitActor.Ask<SpawnEntityData>(EntityRequest.GetSpawnData);
                 List<Stat> tempStats = new List<Stat>();
                 Console.WriteLine("ENTITY STATS NOT INITIALIZED HERE.  ADD THIS");
-                SpawnEntityCommand command = new SpawnEntityCommand(spawnEntityData.Position, spawnEntityData.Name, spawnEntityData.EntityId, spawnEntityData.TeamId, tempStats);// { Name = spawnEntityData.Name, Position = spawnEntityData.Position, EntityId = spawnEntityData.EntityId };
+                SpawnEntityCommand command = new SpawnEntityCommand(spawnEntityData.Position, spawnEntityData.UnitType, spawnEntityData.EntityId, spawnEntityData.TeamId, tempStats);// { Name = spawnEntityData.Name, Position = spawnEntityData.Position, EntityId = spawnEntityData.EntityId };
                 //var selection = _context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Player*");
 
                 joinedPlayerActor.Tell(command);
