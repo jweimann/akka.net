@@ -1,4 +1,5 @@
-﻿using RTS.Core.Structs;
+﻿using JW.Behavior.Interfaces;
+using RTS.Core.Structs;
 using RTS.Entities.Interfaces.Control;
 using RTS.Entities.Interfaces.Movement;
 using RTS.Entities.Interfaces.Stats;
@@ -22,5 +23,6 @@ namespace RTS.Entities.Interfaces
         void MessagePlayer(object message);
         SpawnEntityData GetSpawnEntityData();
         void Destroy();
+        IBrain Brain { get; }
     }
 }

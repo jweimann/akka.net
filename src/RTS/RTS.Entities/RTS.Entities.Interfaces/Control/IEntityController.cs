@@ -1,4 +1,5 @@
 ﻿using RTS.Core.Structs;
+using RTS.DataStructures;
 using RTS.Entities.Interfaces.Movement;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace RTS.Entities.Interfaces.Control
         void SendEntitiesInAreaListToEntity(object sender);
         int GetId();
 
-        void SpawnEntity(string name, Vector3 position, long entityId, long teamId);
+        void SpawnEntity(string name, Vector3 position, long entityId, long teamId, List<Stat> stats);
 
         void SetUnitPath(long unitId, List<Vector3> path);
 

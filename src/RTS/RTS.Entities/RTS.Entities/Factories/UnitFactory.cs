@@ -22,23 +22,24 @@ namespace RTS.Entities.Factories
             _context = context;
             _repository = new UnitDefinitionRepository();
         }
-        public ActorRef GetEntity(ActorRef teamActor, out long entityId)
+        public ActorRef GetEntity(ActorRef teamActor, out long entityId, out Stats.Stats stats)
         {
             SpawnEntityData data = new SpawnEntityData() { TeamActor = teamActor };
-            return GetEntity(data, out entityId);
+            return GetEntity(data, out entityId, out stats);
         }
 
-        public ActorRef GetEntity(SpawnEntityData data, out long entityId)
+        public ActorRef GetEntity(SpawnEntityData data, out long entityId, out Stats.Stats stats)
         {
             entityId = _nextEntityId++;
 
             UnitDefinition unitDefinition = _repository.Get(data.UnitType);
+            stats = new Stats.Stats(unitDefinition);
 
             List<IEntityComponent> args = new List<IEntityComponent>();
             List<IEntityComponent> components = new List<IEntityComponent>();
             components.Add(new Vehicle());
             components.Add(new Weapon());
-            components.Add(new Stats.Stats(unitDefinition));
+            components.Add(stats);
 
             var definition = _repository.Get(data.UnitType);
             if (definition.CanBuild != null)

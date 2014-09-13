@@ -89,7 +89,6 @@ namespace RTS.Entities.Units
                         _reloadTimer = _fireRate;
                         _entity.MessageTeam(new FireWeaponCommand() { TargetEntityId = _targetEntityId, EntityId = this._entity.Id });
                         _targetEntity.Tell(new ModifyStatCommand() { Amount = this._damage, StatId = StatId.HP });
-                        _entity.MessageComponents(EntityRequest.SetInWeaponRangeOfTarget);
                         Console.WriteLine("Fired!!!!!!");
                     }
                 }

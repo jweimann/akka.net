@@ -4,14 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2C6A9E1F-87D2-4AEF-B872-8ABAD5B16CBE}</ProjectGuid>
+    <ProjectGuid>{0AF09CB2-BD5C-42A6-8DE8-EDAC282DC486}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RTS.DataStructures</RootNamespace>
-    <AssemblyName>RTS.DataStructures</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <RootNamespace>JW.Behavior</RootNamespace>
+    <AssemblyName>JW.Behavior</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -40,21 +43,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MovementPath.cs" />
-    <Compile Include="Stat.cs" />
-    <Compile Include="UnitDefinition.cs" />
+    <Compile Include="BehaviorBase.cs" />
+    <Compile Include="Brain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\RTS.Core\RTS.Core.csproj">
-      <Project>{746b8f98-712d-4bef-9922-ac09ccaef5ad}</Project>
-      <Name>RTS.Core</Name>
+    <ProjectReference Include="..\Common\JW.Behavior.Interfaces\JW.Behavior.Interfaces.csproj">
+      <Project>{f3b38f2b-532b-4133-a693-f0491d41a262}</Project>
+      <Name>JW.Behavior.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\core\Akka\Akka.csproj">
+      <Project>{5deddf90-37f0-48d3-a0b0-a5cbd8a7e377}</Project>
+      <Name>Akka</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RTS\RTS.Entities\RTS.Entities.Interfaces\RTS.Entities.Interfaces.csproj">
+      <Project>{3a4143da-d595-4d8b-b0fb-341a1b91b498}</Project>
+      <Name>RTS.Entities.Interfaces</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>copy $(TargetPath) "C:\Git\RTS\RTSClient\Assets\Plugins\RTSCore\$(TargetFileName)"</PostBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

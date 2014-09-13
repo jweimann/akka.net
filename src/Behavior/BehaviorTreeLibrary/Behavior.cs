@@ -15,13 +15,19 @@ namespace BehaviorTreeLibrary
 
         protected double DeltaTime { private set; get; }
 
+        private bool _isInitializing = false;
+
         public Status Tick(double deltaTime = 0.0)
         {
             this.DeltaTime = deltaTime;
-            if (Status == Status.BhInvalid && Initialize != null)
+            if (Status == Status.BhInvalid && Initialize != null && _isInitializing == false)
             {
+                _isInitializing = true;
                 Initialize();
+                _isInitializing = false;
             }
+            if (_isInitializing)
+                return Status;
 
             Status = Update();
 

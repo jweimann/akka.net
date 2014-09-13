@@ -16,6 +16,8 @@ namespace RTS.Entities.Behaviors
     {
         private Vehicle _vehicle;
         private Vector3 _destination; // Only used for setting the path.  Do not use for anything other than initialization.
+        private float _threshhold;
+
         private Vector3 _startPosition;
         private float _totalDistance;
         private IActorContext _context;
@@ -40,12 +42,13 @@ namespace RTS.Entities.Behaviors
         }
         
         private bool HasPath() { return this.Destination != null; }
-        public MoveToLocationBehavior(Vehicle vehicle, Vector3 destination, object context)
+        public MoveToLocationBehavior(Vehicle vehicle, Vector3 destination, object context, float threshhold)
         {
             this.RequestedDestination = destination;
             _vehicle = vehicle;
             SetDestinationAndTemporaryPath(destination);
             _context = context as IActorContext;
+            _threshhold = threshhold;
             this.SetInitialize(Initialize);
         }
 
@@ -55,14 +58,24 @@ namespace RTS.Entities.Behaviors
             _path = new List<Vector3>() { destination };
         }
 
+        private bool isInitializing = false;
         public async void Initialize()
         {
-            _path = await GetPathToDestination(_destination);
+            if (isInitializing)
+                return;
+            isInitializing = true;
+
+            this.Status = BehaviorTreeLibrary.Status.BhSuccess; // Stop double init?
+
+            Console.WriteLine("MoveToLocationBehavior Initialize");
+            _path = await GetPathToDestination(_destination); // This is taking too long and causes another tick/initialize
             if (HasPath() == false)
             {
                 Console.WriteLine(String.Format("Unable to find a path from: {0} to: {1}",_vehicle.GetPosition(), _destination.ToRoundedString()));
                 return;
             }
+            _vehicle.SetPosition(_path[0]);
+
             _currentPathNode = 0;
 
             _vehicle.SendPathToClients(_path);
@@ -78,6 +91,8 @@ namespace RTS.Entities.Behaviors
 
             Add<Condition>().CanRun = ReachedDestination;
             Add<Behavior>().Update = Stop;
+
+            isInitializing = false;
         }
 
         private async Task<List<Vector3>> GetPathToDestination(Vector3 destination)
@@ -103,6 +118,10 @@ namespace RTS.Entities.Behaviors
             Vector3 direction = (NextPosition() - currentPosition).Normalized();
             
             float dist = Vector3.Distance(_vehicle.GetPosition(), NextPosition());
+            if (dist == 0f)
+            {
+                return BehaviorTreeLibrary.Status.BhSuccess;
+            }
 
             Vector3 moveAmount = direction * speed * deltaTime;
             Vector3 speedPerSecond = moveAmount * (1 / deltaTime);
@@ -148,7 +167,7 @@ namespace RTS.Entities.Behaviors
             DebugDistanceToConsole();
 
             float dist = Vector3.Distance(_vehicle.GetPosition(), (Vector3)this.Destination);
-            return dist <= _vehicle.GetMoveThreshhold();
+            return dist <= _threshhold;
         }
         private void DebugDistanceToConsole()
         {
@@ -180,6 +199,10 @@ namespace RTS.Entities.Behaviors
 
         private BehaviorTreeLibrary.Status Stop()
         {
+            if (ReachedDestination() == false)
+            {
+                return BehaviorTreeLibrary.Status.BhSuccess;
+            }
             if (this.Destination.HasValue)
             {
                 float dist2 = Vector3.Distance(_vehicle.GetPosition(), (Vector3)this.Destination);

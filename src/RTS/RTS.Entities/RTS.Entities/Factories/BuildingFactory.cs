@@ -19,26 +19,28 @@ namespace RTS.Entities.Factories
             _context = context;
             _repository = new ContentRepository.UnitDefinitionRepository();
         }
-        public ActorRef GetEntity(ActorRef teamActor, out long entityId)
+        public ActorRef GetEntity(ActorRef teamActor, out long entityId, out Stats.Stats stats)
         {
             SpawnEntityData data = new SpawnEntityData() { TeamActor = teamActor };
-            return GetEntity(data, out entityId);
+            return GetEntity(data, out entityId, out stats);
         }
 
-        public ActorRef GetEntity(SpawnEntityData data, out long entityId)
+        public ActorRef GetEntity(SpawnEntityData data, out long entityId, out Stats.Stats stats)
         {
             entityId = _nextEntityId++;
 
             var definition = _repository.Get(data.UnitType);
+            stats = new Stats.Stats(definition);
 
             List<IEntityComponent> args = new List<IEntityComponent>();
 
             List<IEntityComponent> components = new List<IEntityComponent>();
             components.Add(new Building());
             components.Add(new ResourceGenerator() { Amount = definition.ResourceAmount, Interval = definition.ResourceInterval });
+            components.Add(stats);
 
             Props props = new Props(Deploy.Local, typeof(Entity), new List<object> { entityId, components, data });
-            ActorRef entity = _context.ActorOf(props, "Building_" + entityId);
+            ActorRef entity = _context.ActorOf(props, "Entity" + entityId);
 
             return entity;
         }

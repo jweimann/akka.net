@@ -15,11 +15,14 @@ using RTS.Entities.Behaviors;
 using RTS.Entities.Units;
 using BehaviorTreeLibrary;
 using RTS.ContentRepository;
+using JW.Behavior;
 
 namespace RTS.Entities.Buildings
 {
     public class Building : IBuilding
     {
+        private const float BUILD_RANGE = 10.25f;
+
         private IEntity _entity;
         private Dictionary<DateTime, Tuple<UnitType, Vector3?>> _buildQueue;
         private UnitDefinitionRepository _repository;
@@ -31,21 +34,35 @@ namespace RTS.Entities.Buildings
             _buildQueue = new Dictionary<DateTime, Tuple<UnitType, Vector3?>>();
             _repository = new UnitDefinitionRepository();
         }
+
+        private void BuildEntityAtLocation(UnitType unitType, Vector3? position)
+        {
+            var vehicle = _entity.Components.FirstOrDefault(t => t is Vehicle) as Vehicle;
+
+            var moveBehavior = new BHMoveToLocation(_entity.Brain as Brain, (Vector3)position, BUILD_RANGE);
+            var buildBehavior = new BHBuildAtLocation(_entity.Brain as Brain, (Vector3)position, unitType);
+            moveBehavior.Then = buildBehavior;
+
+            _entity.Brain.AddBehavior(moveBehavior);
+
+            /*
+            var buildAtLocationBehavior = new BuildAtLocationBehavior(vehicle, (Vector3)position, unitDefinition.UnitType, _entity.GetActorContext());
+            buildAtLocationBehavior.Add<Behavior>().Update = () => ClearBehaviors();
+            //buildAtLocationBehavior.Terminate = x => { ClearBehaviors(); };
+            Behaviors.Add(buildAtLocationBehavior);
+
+            vehicle.MoveToPosition((Vector3)position, BUILD_RANGE);
+             */
+        }
+
         public void BuildEntity(UnitType unitType, Vector3? position)
         {
+            
             UnitDefinition unitDefinition = _repository.Get(unitType);
 
             if (position != null)
             {
-                var vehicle = _entity.Components.FirstOrDefault(t => t is Vehicle) as Vehicle;
-                Behaviors.Clear();
-
-                var buildAtLocationBehavior = new BuildAtLocationBehavior(vehicle, (Vector3)position, unitDefinition.UnitType, _entity.GetActorContext());
-                buildAtLocationBehavior.Add<Behavior>().Update = () => ClearBehaviors();
-                //buildAtLocationBehavior.Terminate = x => { ClearBehaviors(); };
-                Behaviors.Add(buildAtLocationBehavior);
-
-                vehicle.MoveToPosition((Vector3)position);
+                BuildEntityAtLocation(unitType, position);
             }
             else
             {
@@ -88,6 +105,9 @@ namespace RTS.Entities.Buildings
 
         public bool CanBuild(UnitDefinition unitDefinition)
         {
+            if (BuildableUnitTypes == null)
+                return false;
+
             foreach (var buildable in BuildableUnitTypes)
             {
                 if (buildable == unitDefinition.UnitType)

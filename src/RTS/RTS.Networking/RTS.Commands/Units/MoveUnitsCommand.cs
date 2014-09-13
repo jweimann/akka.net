@@ -13,6 +13,7 @@ namespace RTS.Commands.Units
     public class MoveUnitsCommand : MmoCommand<IVehicle>, IVehicleCommand
     {
         private float CONSIDERED_EQUAL_DISTANCE = 3.1f;
+        private float MOVEMENT_THRESHHOLD = 0.25f;
         public Vector3 Position { get; set; }
 
         public override void Execute(IVehicle target)
@@ -20,7 +21,7 @@ namespace RTS.Commands.Units
             Console.WriteLine("Executing MoveUnitsCommand Position: " + this.Position.ToRoundedString());
 
             target.ClearTarget();
-            target.MoveToPosition(this.Position);
+            target.MoveToPosition(this.Position, MOVEMENT_THRESHHOLD);
         }
 
         public override bool CanExecute(IVehicle target)
@@ -66,7 +67,7 @@ namespace RTS.Commands.Units
         {
             Console.WriteLine("Executing MoveUnitsCommand Position: " + this.Position.ToRoundedString());
             target.ClearTarget();
-            target.MoveToPosition(this.Position);
+            target.MoveToPosition(this.Position, MOVEMENT_THRESHHOLD);
         }
 
         bool IMmoCommand<IVehicle>.CanExecute(IVehicle target)

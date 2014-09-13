@@ -29,6 +29,9 @@ using RTS.Commands.Team;
 using System.Threading;
 using Akka;
 using RTS.Entities.Interfaces.Player;
+using RTS.Entities.Behaviors;
+using JW.Behavior.Interfaces;
+using RTS.Entities.Interfaces.UnitTypes;
 
 namespace RTS.Entities
 {
@@ -43,13 +46,15 @@ namespace RTS.Entities
         private SpawnEntityData _spawnEntityData; // Keeping this with team and other info, maybe just keep this around and not have a bunch of individual vars.
         private ActorRef _entityActorRef;
         private CancellationTokenSource _cancellationTokenSource;
-
+        
         public ActorRef TeamActor { get; set; } // TODO: Switch this to be the team?  Make Team an Actor?  Also using ActorRef instead of selection because selection was failing for some unknown reason.
         public Vector3 Position { get; set; }
         public ActorSelection AreaOfInterest { get; set; }
         public Int64 Id { get; protected set; }
         List<IEntityComponent> IEntity.Components { get { return _components; } }
         public bool IsAlive { get; set; }
+        public IBrain Brain { private set; get; }
+
         public Entity(Int64 entityId, List<IEntityComponent> components, SpawnEntityData data)
         {
             this.Id = entityId;
@@ -58,11 +63,15 @@ namespace RTS.Entities
             this.IsAlive = true;
             
             this._spawnEntityData = data;
+            this._context = Context;
             
             foreach (var component in components)
             {
                 AddComponent(component);
             }
+
+            // This must initialize after components or IVehicle won't be found.
+            this.Brain = new JW.Behavior.Brain(this, GetComponent<IVehicle>(), _context);
         }
         protected override void PreStart()
         {
@@ -103,6 +112,7 @@ namespace RTS.Entities
             {
                 component.Tick(deltaTime);
             }
+            this.Brain.Tick(deltaTime);
         }
 
         public void AddComponent(IEntityComponent component)

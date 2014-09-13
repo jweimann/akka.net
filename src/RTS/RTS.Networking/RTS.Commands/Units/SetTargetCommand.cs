@@ -46,19 +46,6 @@ namespace RTS.Commands.Units
             return true;
         }
 
-
-        public void Execute(IVehicle target)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool CanExecute(IVehicle target)
-        {
-            return false;
-        }
-
-
-
         public long EntityId { get; set; }
     }
 }

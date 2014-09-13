@@ -52,20 +52,22 @@ namespace RTS.Entities.Client
             long entityId;
 
             ActorRef unit = null;
+            Stats.Stats stats = null;
 
             switch(unitDefinition.UnitType)
             {
                 case UnitType.TruckDepot:
                 case UnitType.BaseStation:
                 case UnitType.Harvester:
-                    unit = _buildingFactory.GetEntity(new SpawnEntityData() { UnitType = unitDefinition.UnitType, Position = position, TeamId = this._teamId }, out entityId);
+                    unit = _buildingFactory.GetEntity(new SpawnEntityData() { UnitType = unitDefinition.UnitType, Position = position, TeamId = this._teamId }, out entityId, out stats);
                     break;
                 default:
-                    unit = _unitFactory.GetEntity(new SpawnEntityData() { UnitType = unitDefinition.UnitType, Position = position, TeamActor = this.Self, TeamId = this._teamId }, out entityId);
+                    unit = _unitFactory.GetEntity(new SpawnEntityData() { UnitType = unitDefinition.UnitType, Position = position, TeamActor = this.Self, TeamId = this._teamId }, out entityId, out stats);
                     break;
             }
 
-            SpawnEntityCommand command = new SpawnEntityCommand() { Name = unitDefinition.UnitType.ToString(), Position = position, EntityId = entityId, TeamId = teamId };
+            
+            SpawnEntityCommand command = new SpawnEntityCommand(position, unitDefinition.UnitType.ToString(), entityId, teamId, stats.AllValues);
             var selection = _context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Player*");
 
             selection.Tell(command);
@@ -285,8 +287,9 @@ namespace RTS.Entities.Client
             throw new NotImplementedException();
         }
 
-        public void SpawnEntity(string name, Vector3 position, long entityId, long teamId)
+        public void SpawnEntity(string name, Vector3 position, long entityId, long teamId, List<Stat> stats)
         {
+            // Stats not used here
             var definition = _repository.Get(UnitType.BaseStation);
             SpawnUnit(definition, position, teamId);
         }
@@ -353,7 +356,9 @@ namespace RTS.Entities.Client
             {
                 ActorRef unitActor = this.EntityActors[key] as ActorRef;
                 SpawnEntityData spawnEntityData = await unitActor.Ask<SpawnEntityData>(EntityRequest.GetSpawnData);
-                SpawnEntityCommand command = new SpawnEntityCommand() { Name = spawnEntityData.Name, Position = spawnEntityData.Position, EntityId = spawnEntityData.EntityId };
+                List<Stat> tempStats = new List<Stat>();
+                Console.WriteLine("ENTITY STATS NOT INITIALIZED HERE.  ADD THIS");
+                SpawnEntityCommand command = new SpawnEntityCommand(spawnEntityData.Position, spawnEntityData.Name, spawnEntityData.EntityId, spawnEntityData.TeamId, tempStats);// { Name = spawnEntityData.Name, Position = spawnEntityData.Position, EntityId = spawnEntityData.EntityId };
                 //var selection = _context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Player*");
 
                 joinedPlayerActor.Tell(command);

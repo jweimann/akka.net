@@ -16,7 +16,7 @@ namespace RTS.Commands.Stats
 
         public override void Execute(IStats target)
         {
-            int currentValue = target.GetStat(this.StatId);
+            int currentValue = target.GetStatValue(this.StatId);
             int newValue = currentValue + this.Amount;
             target.SetStat(this.StatId, newValue, this.Max);
         }

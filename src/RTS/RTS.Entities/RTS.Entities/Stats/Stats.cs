@@ -17,19 +17,15 @@ namespace RTS.Entities.Stats
     {
         private bool _dirty;
         private IEntity _entity;
-        private Dictionary<StatId, int> _stats = new Dictionary<StatId, int>();
-        private Dictionary<StatId, int> _statsMax = new Dictionary<StatId, int>();
+        private Dictionary<StatId, Stat> _stats = new Dictionary<StatId, Stat>();
+
+        public List<Stat> AllValues { get { return _stats.Values.ToList(); } }
         public int HP { get; private set; }
         
         public Stats(UnitDefinition unitDefinition)
         {
             HP = unitDefinition.StartingHP;
-            _stats.Add(StatId.HP, HP);
-            _stats.Add(StatId.Mana, 45);
-
-            _statsMax.Add(StatId.HP, HP);
-            _statsMax.Add(StatId.Mana, 45);
-
+            _stats.Add(StatId.HP, new Stat(StatId.HP, HP));
             _dirty = true;
         }
         public void HandleMessage(object message)
@@ -60,7 +56,7 @@ namespace RTS.Entities.Stats
             if (_dirty)
             {
                 _dirty = false;
-                _entity.MessageTeam(new UpdateStatsCommand() { StatIds = new StatId[] { StatId.HP }, Values = new int[] { this.GetStat(StatId.HP) }, Max = new int[] { this.GetStatMax(StatId.HP) }, EntityId = _entity.Id });
+                _entity.MessageTeam(new UpdateStatsCommand() { StatIds = new StatId[] { StatId.HP }, Values = new int[] { this.GetStatValue(StatId.HP) }, Max = new int[] { this.GetStatMax(StatId.HP) }, EntityId = _entity.Id });
 
                 //AreaOfInterest.Tell(new UpdateStatsCommand() { StatIds = new StatId[] { StatId.HP }, Values = new int[] { this.HP }, EntityId = _entity.Id });
             }
@@ -68,7 +64,7 @@ namespace RTS.Entities.Stats
 
         private int GetStatMax(StatId statId)
         {
-            return _statsMax[statId];
+            return _stats[statId].Max;
         }
 
         public void TakeDamage(int damage)
@@ -87,8 +83,8 @@ namespace RTS.Entities.Stats
             if (_stats.ContainsKey(statId) == false)
                 return;
 
-            _stats[statId] = value;
-            _statsMax[statId] = max;
+            _stats[statId].Value = value;
+            _stats[statId].Max = max;
 
             CheckHP();
 
@@ -97,7 +93,7 @@ namespace RTS.Entities.Stats
 
         private void CheckHP()
         {
-            if (GetStat(StatId.HP) <= 0)
+            if (GetStatValue(StatId.HP) <= 0)
             {
                 _entity.Destroy();
             }
@@ -125,12 +121,14 @@ namespace RTS.Entities.Stats
         }
 
 
-        public int GetStat(StatId statId)
+        public int GetStatValue(StatId statId)
         {
             if (_stats.ContainsKey(statId) == false)
                 return 0;
 
-            return _stats[statId];
+            return _stats[statId].Value;
         }
+
+        
     }
 }

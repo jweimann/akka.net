@@ -1,11 +1,13 @@
 ﻿using Akka.Actor;
 using BehaviorTreeLibrary;
+using JW.Behavior;
 using RTS.Commands;
 using RTS.Commands.Client;
 using RTS.Commands.Interfaces;
 using RTS.Commands.Units;
 using RTS.Core.Enums;
 using RTS.Core.Structs;
+using RTS.DataStructures;
 using RTS.Entities.Behaviors;
 using RTS.Entities.Interfaces;
 using RTS.Entities.Interfaces.EntityComponents;
@@ -29,18 +31,39 @@ namespace RTS.Entities.Units
         private float _speed = 15f;
         private Vector3 _destination;
 
-        List<Behavior> Behaviors = new List<Behavior>();
+        List<Behavior> Behaviors = new List<Behavior>(); // OLD behavior system
+        
 
         public Vehicle()
         {
             _path = new List<Vector3>();
         }
-        public void MoveToPosition(Core.Structs.Vector3 position)
+
+        private void NewMoveToPosition(Vector3 position, float threshhold)
         {
+            // Build a behavior manager to handle this shit.
+            var b = new BHMoveToLocation(_entity.Brain as Brain, position, threshhold);
+            _entity.Brain.AddBehavior(b);
+
+            //b.Completed = () => { _behaviors.Remove(b); };
+
+            //_behaviors.RemoveAll(p => p is BHMoveToLocation);
+            //_behaviors.Add(b);
+        }
+
+        public void MoveToPosition(Core.Structs.Vector3 position, float threshhold)
+        {
+            if (Vector3.Distance(position, GetPosition()) <= threshhold)
+            {
+                return; // Already in range
+            }
+            NewMoveToPosition(position, threshhold);
+            return;
+
             if (position == _destination)
                 return;
 
-            if (Vector3.Distance(position, _destination) < _moveThreshhold)
+            if (Vector3.Distance(position, _destination) < threshhold)
                 return;
 
             if (Behaviors.Any(t=> t is MoveToLocationBehavior && 
@@ -58,14 +81,14 @@ namespace RTS.Entities.Units
                 {
                     var behaviorDest = ((MoveToLocationBehavior)existingBehavior).RequestedDestination;
                     var dist = Vector3.Distance(behaviorDest.WithoutHeight(), position.WithoutHeight());
-                    if (dist < _moveThreshhold)
+                    if (dist < threshhold)
                         return;
                 }
             }
 
             Behaviors.RemoveAll(t=> t is MoveToLocationBehavior);
-            var behavior = new MoveToLocationBehavior(this, position, _entity.GetActorContext());
-            behavior.Initialize();
+            var behavior = new MoveToLocationBehavior(this, position, _entity.GetActorContext(), threshhold);
+            //behavior.Initialize();
             Behaviors.Add(behavior);
             _destination = position;
         }
@@ -73,11 +96,16 @@ namespace RTS.Entities.Units
         public void Stop()
         {
             Behaviors.Clear();
-            SendPathToClients(new List<Vector3>() { GetPosition() });
+            SendPathToClients(new MovementPath(new List<Vector3>() { GetPosition() }));
         }
 
+        public void SendPathToClients(MovementPath path)
+        {
+            _entity.MessageTeam(new SetPathOnClientCommand() { Path = path.Points, UnitId = this._entity.Id });
+        }
         public void SendPathToClients(List<Core.Structs.Vector3> path)
         {
+            throw new NotImplementedException("DEPRICIATED");
             _entity.MessageTeam(new SetPathOnClientCommand() { Path = path, UnitId = this._entity.Id });
         }
 
@@ -112,20 +140,12 @@ namespace RTS.Entities.Units
                     (message as IMmoCommand<IEntityTargeter>).Execute(this);
                 }
             }
-            if (message is EntityRequest)
-            {
-                var request = (EntityRequest)message;
-                if (request == EntityRequest.SetInWeaponRangeOfTarget)
-                {
-                    Stop(); //TODO: Change this to keep the target but pause following..
-                }
-            }
         }
 
         private double _targettingTimer = 0f;
         public async void Tick(double deltaTime)
         {
-            //Console.WriteLine("VehicleTick " + DateTime.Now.TimeOfDay.ToString() + " DeltaTime " + deltaTime);
+            // OLD BEHAVIOR STUFF
             for (int i = 0; i < this.Behaviors.Count; i++)
             {
                 try
@@ -154,6 +174,8 @@ namespace RTS.Entities.Units
                 }
             }
         }
+
+   
 
         private async Task<bool> TargetIsAlive()
         {
@@ -185,9 +207,11 @@ namespace RTS.Entities.Units
         //        _entity.Position.ToRoundedString(),
         //        targetPosition.ToRoundedString()));
 
+            float weaponRange = 30f;
+
             if (targetPosition.IsNan() == false)
             {
-                MoveToPosition(targetPosition);
+                MoveToPosition(targetPosition, weaponRange);
             }
         }
 
@@ -256,17 +280,17 @@ namespace RTS.Entities.Units
 
         #region Behavior Support
 
-        internal Vector3 GetPosition()
+        public Vector3 GetPosition()
         {
             return _entity.Position;
         }
 
-        internal float GetSpeed()
+        public float GetSpeed()
         {
             return _speed;
         }
 
-        internal void SetPosition(Vector3 currentPosition)
+        public void SetPosition(Vector3 currentPosition)
         {
             if (currentPosition.IsNan())
             {
@@ -287,14 +311,27 @@ namespace RTS.Entities.Units
 
         #endregion
 
-        internal void SendCommandToTeam(Commands.Buildings.FinishBuildEntityCommand finishBuildEntityCommand)
+        public void SendCommandToTeam(object command)
         {
-            _entity.MessageTeam(finishBuildEntityCommand);
+            _entity.MessageTeam(command);
         }
 
         internal float GetBuildRangeThreshhold()
         {
             return _buildRangeThreshhold;
+        }
+
+
+        public void MoveBy(Vector3 vector3)
+        {
+            if (vector3.IsNan() == false)
+                SetPosition(this.GetPosition() + vector3);
+        }
+
+
+        public void SendStopPathToClients()
+        {
+            SendPathToClients(new MovementPath(new List<Vector3>() { this.GetPosition() }));
         }
     }
 }

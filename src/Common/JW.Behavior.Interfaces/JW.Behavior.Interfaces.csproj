@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2C6A9E1F-87D2-4AEF-B872-8ABAD5B16CBE}</ProjectGuid>
+    <ProjectGuid>{F3B38F2B-532B-4133-A693-F0491D41A262}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RTS.DataStructures</RootNamespace>
-    <AssemblyName>RTS.DataStructures</AssemblyName>
+    <RootNamespace>JW.Behavior.Interfaces</RootNamespace>
+    <AssemblyName>JW.Behavior.Interfaces</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
@@ -40,16 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MovementPath.cs" />
-    <Compile Include="Stat.cs" />
-    <Compile Include="UnitDefinition.cs" />
+    <Compile Include="IBehavior.cs" />
+    <Compile Include="IBrain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\RTS.Core\RTS.Core.csproj">
-      <Project>{746b8f98-712d-4bef-9922-ac09ccaef5ad}</Project>
-      <Name>RTS.Core</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

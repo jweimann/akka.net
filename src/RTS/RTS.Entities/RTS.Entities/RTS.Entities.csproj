@@ -84,6 +84,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Behaviors\BHBuildAtLocation.cs" />
+    <Compile Include="Behaviors\BHMoveToLocation.cs" />
     <Compile Include="Behaviors\BuildAtLocationBehavior.cs" />
     <Compile Include="Behaviors\MoveToLocationBehavior.cs" />
     <Compile Include="Buildings\Building.cs" />
@@ -134,6 +136,10 @@
       <Project>{dd5fe23e-1d24-42c8-a43c-82ff5bf236d7}</Project>
       <Name>BehaviorTreeLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Common\JW.Behavior.Interfaces\JW.Behavior.Interfaces.csproj">
+      <Project>{f3b38f2b-532b-4133-a693-f0491d41a262}</Project>
+      <Name>JW.Behavior.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\core\Akka.Remote\Akka.Remote.csproj">
       <Project>{ea4ff8fd-7c53-49c8-b9aa-02e458b3e6a7}</Project>
       <Name>Akka.Remote</Name>
@@ -141,6 +147,10 @@
     <ProjectReference Include="..\..\..\core\Akka\Akka.csproj">
       <Project>{5deddf90-37f0-48d3-a0b0-a5cbd8a7e377}</Project>
       <Name>Akka</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\CSBehavior\JW.Behavior.csproj">
+      <Project>{0af09cb2-bd5c-42a6-8de8-edac282dc486}</Project>
+      <Name>JW.Behavior</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\RTS.Commands.Interfaces\RTS.Commands.Interfaces.csproj">
       <Project>{3c16668d-86d0-424b-97ab-af5868b6943e}</Project>
