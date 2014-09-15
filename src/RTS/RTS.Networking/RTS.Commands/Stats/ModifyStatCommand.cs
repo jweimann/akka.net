@@ -13,11 +13,15 @@ namespace RTS.Commands.Stats
         public int Amount { get; set; }
         public int Max { get; set; }
 
-
+        public ModifyStatCommand()
+        {
+            this.Max = -1; // Default;
+        }
         public override void Execute(IStats target)
         {
             int currentValue = target.GetStatValue(this.StatId);
             int newValue = currentValue + this.Amount;
+
             target.SetStat(this.StatId, newValue, this.Max);
         }
 

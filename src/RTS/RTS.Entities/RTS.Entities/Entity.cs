@@ -96,7 +96,7 @@ namespace RTS.Entities
 
         protected override void PostStop()
         {
-            //_cancellationTokenSource.Cancel(false);
+            _cancellationTokenSource.Cancel(false);
             base.PostStop();
         }
         private void TurnAround()
@@ -258,7 +258,8 @@ namespace RTS.Entities
                         break;
                     case EntityRequest.GetSpawnData:
                         {
-                            SpawnEntityData data = new SpawnEntityData() { EntityId = this.Id, Name = this._spawnEntityData.Name, Position = this.Position, TeamId = this._spawnEntityData.TeamId, UnitType = this._spawnEntityData.UnitType };
+                            var statValues = GetComponent<RTS.Entities.Stats.Stats>().AllValues;
+                            SpawnEntityData data = new SpawnEntityData() { EntityId = this.Id, Name = this._spawnEntityData.Name, Position = this.Position, TeamId = this._spawnEntityData.TeamId, UnitType = this._spawnEntityData.UnitType, Stats = statValues };
                             Sender.Tell(data);
                         }
                         break;

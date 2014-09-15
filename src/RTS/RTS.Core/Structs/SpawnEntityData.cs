@@ -14,6 +14,11 @@ namespace RTS.Core.Structs
         public object TeamActor;
         public long EntityId;
         public UnitType UnitType;
+        public object Stats;
 
+        public override string ToString()
+        {
+            return String.Format("Name: {0} ID: {1}", Name, EntityId);
+        }
     }
 }

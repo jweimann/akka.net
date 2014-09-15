@@ -104,7 +104,7 @@ namespace RTS.Entities.Client
 
             HandleEntityRequest(message);
 
-            Console.WriteLine("DEBUG - TEAM RECIEVED MESSAGE: " + message.GetType().ToString());
+            //Console.WriteLine("DEBUG - TEAM RECIEVED MESSAGE: " + message.GetType().ToString());
 
             CommandMatch.Match(message)
                 .WithServer<ITeam>(() => (message as IMmoCommand<ITeam>).Execute(this))
@@ -299,8 +299,13 @@ namespace RTS.Entities.Client
             {
                 ActorRef unitActor = this.EntityActors[key] as ActorRef;
                 SpawnEntityData spawnEntityData = await unitActor.Ask<SpawnEntityData>(EntityRequest.GetSpawnData);
-                List<Stat> tempStats = new List<Stat>();
-                Console.WriteLine("ENTITY STATS NOT INITIALIZED HERE.  ADD THIS");
+                List<Stat> tempStats = (List<Stat>)spawnEntityData.Stats;
+                string statsString = String.Empty;
+                foreach (var stat in tempStats)
+                {
+                    statsString += String.Format("{0}={1}/{2} ", stat.Name, stat.Value, stat.Max);
+                }
+                Console.WriteLine(String.Format("Sending Existing Entity. {0} Stats: {1}", spawnEntityData.ToString(), statsString));
                 SpawnEntityCommand command = new SpawnEntityCommand(spawnEntityData.Position, spawnEntityData.UnitType, spawnEntityData.EntityId, spawnEntityData.TeamId, tempStats);// { Name = spawnEntityData.Name, Position = spawnEntityData.Position, EntityId = spawnEntityData.EntityId };
                 //var selection = _context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Player*");
 

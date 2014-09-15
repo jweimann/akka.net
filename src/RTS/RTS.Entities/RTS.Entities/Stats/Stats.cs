@@ -84,7 +84,9 @@ namespace RTS.Entities.Stats
                 return;
 
             _stats[statId].Value = value;
-            _stats[statId].Max = max;
+
+            if (max != -1)
+                _stats[statId].Max = max;
 
             CheckHP();
 

@@ -39,8 +39,8 @@ namespace RTS.Entities.Behaviors
                     if (_path != null)
                     {
                         this.Vehicle.SetPosition(_path.NextPosition());
+                        this.Vehicle.SendPathToClients(_path);
                     }
-                    this.Vehicle.SendPathToClients(_path);
                 }
                 return;
             }

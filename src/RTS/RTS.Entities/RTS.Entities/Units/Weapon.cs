@@ -128,7 +128,7 @@ namespace RTS.Entities.Units
             long targetTeam = await actorRef.Ask<long>(EntityRequest.GetTeam);
             if (targetTeam == _entity.GetSpawnEntityData().TeamId)
             {
-                return; // Don't target allies with a weapon.
+                //return; // Don't target allies with a weapon. FriendlyFire Friendly Fire
             }
             _targetEntityId = entityId;
             _targetEntity = actorRef;
