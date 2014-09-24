@@ -2,6 +2,7 @@
 using RTS.Commands;
 using RTS.Commands.Interfaces;
 using RTS.Core.Enums;
+using RTS.Networking.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,16 +10,17 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace RTS.Networking.Helios
 {
-    public class RTSHeliosNetworkClient
+    public class RTSHeliosNetworkClient : IPlayerConnection
     {
         private static int _idIndex = 500;
 
         private IConnection _connection;
         private int _id = _idIndex++;
         public IConnection Connection { get { return _connection; } }
-        public delegate void CommandRecievedEventHandler(object sender, MmoCommand command);
+        //public delegate void CommandRecievedEventHandler(object sender, MmoCommand command);
         public event CommandRecievedEventHandler CommandRecieved;
         public int Id { get { return _id; } }
         public RTSHeliosNetworkClient(IConnection connection)
@@ -48,7 +50,7 @@ namespace RTS.Networking.Helios
                 {
                     if (command is MmoCommand)
                     {
-                        CommandRecieved(this, command as MmoCommand);
+                        CommandRecieved(this, command as IMmoCommand);
                     }
                 }
             }

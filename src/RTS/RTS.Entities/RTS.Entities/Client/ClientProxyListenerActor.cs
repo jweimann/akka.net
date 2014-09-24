@@ -25,9 +25,9 @@ namespace RTS.Entities.Client
     public class ClientProxyListenerActor : TypedActor, IHandle<string>
     {
         private ActorSelection _clientProxyCollectionActor;
-        private List<MmoNetworkClient> _clients = new List<MmoNetworkClient>();
         private Dictionary<IConnection, ActorRef> _connections = new Dictionary<IConnection, ActorRef>();
         private IPlayerFactory _factory;
+        //private IPlayerFactory _aiBotFactory;
         private TeamFactory _teamFactory;
         private PathingConnectionFactory _pathingConnectionFactory;
 
@@ -45,6 +45,7 @@ namespace RTS.Entities.Client
             _path = this.Self.Path;
 
             _factory = new PlayerFactory(Context.System);
+            //_aiBotFactory = new AIBotFactory(Context.System);
             _teamFactory = new TeamFactory(Context.System);
             _pathingConnectionFactory = new PathingConnectionFactory(Context.System);
 
@@ -99,6 +100,8 @@ namespace RTS.Entities.Client
 
             //var selfActorSelection = _system.ActorSelection(_path);
             //selfActorSelection.Tell(player.Path);
+
+            //_aiBotFactory.GetPlayer(null);
 
         }
 

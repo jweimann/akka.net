@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using Helios.Net;
 using RTS.ActorRequests;
+using RTS.Commands.Interfaces;
 using RTS.Commands.Pathing;
 using RTS.Core.Structs;
 using RTS.Networking.Helios;
@@ -24,7 +25,7 @@ namespace RTS.Pathfinding
             _connection.CommandRecieved += _connection_CommandRecieved;
         }
 
-        void _connection_CommandRecieved(object sender, Commands.MmoCommand command)
+        void _connection_CommandRecieved(object sender, IMmoCommand command)
         {
             if (command is ResolvePathCommand)
             {

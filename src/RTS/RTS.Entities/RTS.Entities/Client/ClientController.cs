@@ -1,9 +1,11 @@
 ﻿using RTS.Commands;
+using RTS.Commands.Interfaces;
 using RTS.Commands.Server;
 using RTS.Entities.Interfaces;
 using RTS.Entities.Interfaces.Control;
 using RTS.Entities.Requests;
 using RTS.Networking.Helios;
+using RTS.Networking.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,18 +16,18 @@ namespace RTS.Entities.Client
 {
     public class ClientController : PlayerComponent<IController>, IController
     {
-        private RTSHeliosNetworkClient _client;
+        private IPlayerConnection _client;
 
-        public ClientController(RTSHeliosNetworkClient client)
+        public ClientController(IPlayerConnection client)
         {
             _client = client;
             _client.CommandRecieved += CommandRecieved;
             //Console.WriteLine(String.Format("ClientController added to Connection: {0}  EntityId: {1}", _client.Connection.RemoteHost.ToString(), _entity.Id));
         }
 
-        void CommandRecieved(object sender, Commands.MmoCommand command)
+        void CommandRecieved(object sender, IMmoCommand command)
         {
-            _player.HandleCommand(command);
+            //_player.HandleCommand(command); // MOVED TO PLAYER CONSTRUCTOR
         }
         //void CommandRecieved2(object sender, Commands.MmoCommand command)
         //{

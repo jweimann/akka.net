@@ -1,5 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.Configuration;
+using RTS.AI;
 using RTS.Commands;
 using RTS.Commands.Buildings;
 using RTS.Commands.Client;
@@ -13,8 +14,10 @@ using RTS.Entities;
 using RTS.Entities.Client;
 using RTS.Entities.Factories;
 using RTS.Entities.Interfaces;
+using RTS.Entities.Interfaces.Player;
 using RTS.Entities.Interfaces.Stats;
 using RTS.Entities.Movement;
+using RTS.Entities.Player;
 using RTS.Entities.Requests;
 using RTS.Pathfinding;
 using System;
@@ -282,8 +285,22 @@ akka {
             system.ActorOf<PathingActor>("PathingActor");
             system.ActorOf<ClientProxyListenerActor>("ClientProxyListener");
 
-            //NPCEntityFactory npcFactory = new NPCEntityFactory(system);
 
+            //Console.ReadLine();
+
+            System.Threading.Thread.Sleep(10000);
+
+            for (int i = 10; i < 12; i++)
+            {
+                System.Threading.Thread.Sleep(1000);
+                SpawnBots(system, i);    
+            }
+            
+            
+            PlayerFactory factory = new PlayerFactory(system);
+            //var aiPlayer = factory.GetPlayer(aiClient);
+            //factory.GetPlayer(null);
+            
             for (int i = 0; i < 0; i++)
             {
            //     npcFactory.GetEntity();
@@ -292,6 +309,24 @@ akka {
 
            // var entity = system.ActorOf<Entity>();
             Console.ReadLine();
+        }
+
+        private static void SpawnBots(ActorSystem system, int i)
+        {
+            Console.WriteLine("Spawning Bot");
+            var aiClient = new AIClient();
+            Props props = new Props(Deploy.Local, typeof(AIBot), new List<object> { aiClient });
+            ActorRef aiBot = system.ActorOf(props, "BOT" + i);
+
+            List<IPlayerComponent> args = new List<IPlayerComponent>();
+            Props playerProps = new Props(Deploy.Local, typeof(Player), new List<object> { aiClient, args });
+            ActorRef aiBotPlayer = system.ActorOf(playerProps, "Player" + i);
+
+            TeamFactory _teamFactory = new TeamFactory(system, i);
+            long teamId;
+            var team = _teamFactory.GetEntity(out teamId);
+            team.Tell(new SetPlayerCommand() { PlayerActor = aiBotPlayer }); // Tell the team what it's player actor is
+            aiBotPlayer.Tell(new SetTeamCommand() { TeamActor = team }); // Tell the player what it's team actor is
         }
     }
 

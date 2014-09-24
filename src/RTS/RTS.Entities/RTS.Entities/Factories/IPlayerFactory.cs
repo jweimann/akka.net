@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using Helios.Net;
 using RTS.Networking.Helios;
+using RTS.Networking.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,6 @@ namespace RTS.Entities.Factories
 {
     public interface IPlayerFactory
     {
-        ActorRef GetPlayer(RTSHeliosNetworkClient client);
+        ActorRef GetPlayer(IPlayerConnection client);
     }
 }

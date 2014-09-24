@@ -54,7 +54,7 @@ namespace RTS.Entities
         List<IEntityComponent> IEntity.Components { get { return _components; } }
         public bool IsAlive { get; set; }
         public IBrain Brain { private set; get; }
-
+        public long TeamId { get { return _spawnEntityData.TeamId; } }
         public Entity(Int64 entityId, List<IEntityComponent> components, SpawnEntityData data)
         {
             this.Id = entityId;

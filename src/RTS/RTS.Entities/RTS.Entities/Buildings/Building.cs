@@ -72,7 +72,11 @@ namespace RTS.Entities.Buildings
 
         private void StartBuildingEntity(UnitDefinition unitDefinition, Vector3? position)
         {
-            _buildQueue.Add(DateTime.Now + TimeSpan.FromSeconds(unitDefinition.BuildTime), new Tuple<UnitType, Vector3?>(unitDefinition.UnitType, position));
+            var finishTime = DateTime.Now + TimeSpan.FromSeconds(unitDefinition.BuildTime);
+            while (_buildQueue.ContainsKey(finishTime))
+                finishTime += TimeSpan.FromMilliseconds(1); 
+
+            _buildQueue.Add(finishTime, new Tuple<UnitType, Vector3?>(unitDefinition.UnitType, position));
 
         }
 
@@ -145,7 +149,9 @@ namespace RTS.Entities.Buildings
             }
 
             List<DateTime> keysToRemove = new List<DateTime>();
-            foreach (var buildCompletionTime in _buildQueue.Keys)
+
+            List<DateTime> keys = new List<DateTime>(_buildQueue.Keys);
+            foreach (var buildCompletionTime in keys)
             {
                 var buildInfo = _buildQueue[buildCompletionTime];
                 if (buildCompletionTime <= DateTime.Now)

@@ -97,6 +97,7 @@
     <Compile Include="Entity.cs" />
     <Compile Include="Client\ClientProxyListenerActor.cs" />
     <Compile Include="EntityComponent.cs" />
+    <Compile Include="Factories\AIBotFactory.cs" />
     <Compile Include="Factories\BuildingFactory.cs" />
     <Compile Include="Factories\IActorFactory.cs" />
     <Compile Include="Factories\IEntityFactory.cs" />

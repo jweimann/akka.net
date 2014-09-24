@@ -11,13 +11,16 @@ namespace RTS.Entities.Factories
 {
     public class BuildingFactory : IEntityFactory
     {
+        private static Int64 _nextEntityId = 1000; //STATIC - Move to a generator service.
+
         private ActorSystem _context;
-        private static Int64 _nextEntityId = 1000;
         private ContentRepository.UnitDefinitionRepository _repository;
         public BuildingFactory(ActorSystem context)
         {
             _context = context;
             _repository = new ContentRepository.UnitDefinitionRepository();
+            
+            Random rng = new Random();
         }
         public ActorRef GetEntity(ActorRef teamActor, out long entityId, out Stats.Stats stats)
         {

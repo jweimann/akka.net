@@ -21,6 +21,7 @@ namespace RTS.Entities.Factories
         {
             _context = context;
             _repository = new UnitDefinitionRepository();
+            //_nextEntityId += DateTime.Now.Ticks;
         }
         public ActorRef GetEntity(ActorRef teamActor, out long entityId, out Stats.Stats stats)
         {

@@ -46,6 +46,9 @@ namespace RTS.Pathfinding
             List<Vector3> path = null;
             // ask last temporarily until i get the cleanup or roundrobin right.
 
+            if (_clientConnections.Count == 0)
+                return null;
+
             return await _clientConnections.Last().Ask<List<Vector3>>(request);
 
             foreach(var connection in _clientConnections)

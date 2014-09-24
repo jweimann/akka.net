@@ -100,6 +100,10 @@
       <Project>{746b8f98-712d-4bef-9922-ac09ccaef5ad}</Project>
       <Name>RTS.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\RTS.Networking.Interfaces\RTS.Networking.Interfaces.csproj">
+      <Project>{a6aa7149-25c8-4dbe-ace9-98fdd7661d38}</Project>
+      <Name>RTS.Networking.Interfaces</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

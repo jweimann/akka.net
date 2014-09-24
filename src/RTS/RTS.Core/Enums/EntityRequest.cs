@@ -10,5 +10,6 @@ namespace RTS.Core.Enums
         GetTeam,
         GetSpawnData,
         GetIsAlive,
+        GetRandomBuilding,
     }
 }

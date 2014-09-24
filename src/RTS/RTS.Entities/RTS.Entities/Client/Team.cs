@@ -13,6 +13,7 @@ using RTS.Core.Structs;
 using RTS.DataStructures;
 using RTS.Entities.Buildings;
 using RTS.Entities.Factories;
+using RTS.Entities.Interfaces;
 using RTS.Entities.Interfaces.Control;
 using RTS.Entities.Interfaces.EntityComponents;
 using RTS.Entities.Interfaces.Player;
@@ -80,7 +81,10 @@ namespace RTS.Entities.Client
                 var msg = message as BuildEntityCommand;
                 if (entityActors.ContainsKey(msg.BuildingEntityId) == false)
                 {
+                    //System.Diagnostics.Debugger.Break();
+                    //throw new ArgumentOutOfRangeException("Player tried to build from an entity on another team.");
                     //return; // Not my vehicle.  TODO: Log an error/cheat attempt?
+                    Console.WriteLine("Player tried to build from an entity on another team.");
                     return false;
                 }
                 else
@@ -114,7 +118,7 @@ namespace RTS.Entities.Client
                 .WithServer<IStats>(() => SendMessageToEntities(message))
                 .WithServer<IWeapon>(() => SendMessageToEntities(message))
                 .WithServer<IEntityTargeter>(() => SendMessageToEntities(message))
-                .WithServer<IPlayer>(() => _playerActor.Tell(message))
+                .WithServer<IPlayer>(() => SendMessageToPlayerActor(message))
 
                 .WithClient<IEntityController>(() => SendCommandToAllPlayers(message))
                 .WithClient<IStats>(() => SendCommandToAllPlayers(message))
@@ -123,6 +127,14 @@ namespace RTS.Entities.Client
                 ;
 
           
+        }
+
+        private void SendMessageToPlayerActor(object message)
+        {
+            if (_playerActor == null)
+                Console.WriteLine("ERROR _playerActor NULL");
+            else
+                _playerActor.Tell(message);
         }
 
         private void SendMessageToEntities(object message)
@@ -192,6 +204,10 @@ namespace RTS.Entities.Client
             if (_nextSpawnLocationIndex >= _spawnLocations.Count)
                 _nextSpawnLocationIndex = 0;
 
+            Random rng = new Random();
+
+            spawnLoc += new Vector3(rng.Next(-200, 200), 0, rng.Next(-200, 200));
+
             return spawnLoc;
         }
 
@@ -205,7 +221,7 @@ namespace RTS.Entities.Client
             throw new NotImplementedException();
         }
 
-        public Dictionary<long, Interfaces.Movement.IMover> GetEntities()
+        public Dictionary<long, IEntity> GetEntities()
         {
             throw new NotImplementedException();
         }
@@ -295,7 +311,9 @@ namespace RTS.Entities.Client
         {
             ActorRef joinedPlayerActor = PlayerActor as ActorRef;
 
-            foreach (var key in this.EntityActors.Keys)
+            List<long> keys = new List<long>(this.EntityActors.Keys);
+
+            foreach (var key in keys)
             {
                 ActorRef unitActor = this.EntityActors[key] as ActorRef;
                 SpawnEntityData spawnEntityData = await unitActor.Ask<SpawnEntityData>(EntityRequest.GetSpawnData);
@@ -339,7 +357,7 @@ namespace RTS.Entities.Client
         }
 
 
-        private void HandleEntityRequest(object message)
+        private async void HandleEntityRequest(object message)
         {
             if (message is EntityRequest)
             {
@@ -347,6 +365,11 @@ namespace RTS.Entities.Client
                 {
                     case EntityRequest.GetTeam:
                         Sender.Tell(this._teamId);
+                        break;
+                    case EntityRequest.GetRandomBuilding:
+                        var firstBuildingActorRef = EntityActors.Where(t => t.Key < 5000).FirstOrDefault().Value as ActorRef;
+                        var spawnEntityData = await firstBuildingActorRef.Ask<SpawnEntityData>(EntityRequest.GetSpawnData);
+                        Sender.Tell(spawnEntityData); // Have entitiy actor reply or do something else???
                         break;
                 }
             }

@@ -13,6 +13,7 @@ using RTS.Entities.Interfaces.Stats;
 using RTS.Entities.Interfaces.Teams;
 using RTS.Entities.Interfaces.UnitTypes;
 using RTS.Networking.Helios;
+using RTS.Networking.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,14 +26,14 @@ namespace RTS.Entities.Player
     {
         private const int STARTING_MONEY = 1500;
 
-        private RTSHeliosNetworkClient _client;
+        private IPlayerConnection _client;
         private List<IPlayerComponent> _components;
         private ActorRef _team;
         private long _teamId; // Not set on server atm.
         private int _money;
         private UnitDefinitionRepository _repository;
         
-        public Player(RTSHeliosNetworkClient client, List<IPlayerComponent> components)
+        public Player(IPlayerConnection client, List<IPlayerComponent> components)
         {
             _client = client;
             _components = components;
@@ -42,6 +43,13 @@ namespace RTS.Entities.Player
             {
                 component.SetPlayer(this);
             }
+
+            client.CommandRecieved += client_CommandRecieved;
+        }
+
+        void client_CommandRecieved(object sender, IMmoCommand command)
+        {
+            this.HandleCommand(command);
         }
         protected override void PreStart()
         {
@@ -161,7 +169,12 @@ namespace RTS.Entities.Player
             //_components.FirstOrDefault(t=> t is Ic)
         }
 
+        public async Task<object> AskTeam(object message)
+        {
+            return await _team.Ask(message);
+        }
 
-      
+
+        
     }
 }

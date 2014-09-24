@@ -252,9 +252,16 @@ namespace RTS.Entities.Units
                 return; // Dont' target self...
             }
             var actorRef = await GetEntityById(entityId);
-            _targetEntityId = entityId;
-            _targetEntity = actorRef;
-            _targetEntityTeam = await actorRef.Ask<long>(EntityRequest.GetTeam);
+            if (actorRef != null)
+            {
+                _targetEntityId = entityId;
+                _targetEntity = actorRef;
+                _targetEntityTeam = await actorRef.Ask<long>(EntityRequest.GetTeam);
+            }
+            else
+            {
+                Console.WriteLine("Vehicle unable to find target.  EntityId: " + entityId);
+            }
         }
 
 
@@ -266,8 +273,14 @@ namespace RTS.Entities.Units
         {
             IActorContext context = _entity.GetActorContext() as IActorContext;
             ActorSelection targetActorSelection = context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Entity" + entityId);
-            var actorRef = await targetActorSelection.ResolveOne(TimeSpan.FromSeconds(1));
-            return actorRef;
+            try
+            {
+                var actorRef = await targetActorSelection.ResolveOne(TimeSpan.FromSeconds(1));
+                return actorRef;
+            } catch (ActorNotFoundException)
+            {
+                return null;
+            }
         }
 
         #endregion

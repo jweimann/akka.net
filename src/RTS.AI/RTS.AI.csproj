@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DF0FC799-0705-42E4-9981-3F433BCBB6D7}</ProjectGuid>
+    <ProjectGuid>{1CD6CE59-0932-433D-9671-1E8C9A6CB369}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RTS.Pathfinding</RootNamespace>
-    <AssemblyName>RTS.Pathfinding</AssemblyName>
+    <RootNamespace>RTS.AI</RootNamespace>
+    <AssemblyName>RTS.AI</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -31,81 +29,62 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Helios, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\RTS.Networking\RTS.Networking.Helios\bin\Debug\Helios.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PathingClientConnectionActor.cs" />
-    <Compile Include="PathingActor.cs" />
+    <Compile Include="AIBot.cs" />
+    <Compile Include="AIClient.cs" />
+    <Compile Include="AIEntity.cs" />
+    <Compile Include="Behaviors\BHAIRandomAttack.cs" />
+    <Compile Include="Behaviors\BHAIRandomRoam.cs" />
+    <Compile Include="Components\AIEntityController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\core\Akka.Remote\Akka.Remote.csproj">
+    <ProjectReference Include="..\Common\JW.Behavior.Interfaces\JW.Behavior.Interfaces.csproj">
+      <Project>{f3b38f2b-532b-4133-a693-f0491d41a262}</Project>
+      <Name>JW.Behavior.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\core\Akka.Remote\Akka.Remote.csproj">
       <Project>{ea4ff8fd-7c53-49c8-b9aa-02e458b3e6a7}</Project>
       <Name>Akka.Remote</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\core\Akka\Akka.csproj">
+    <ProjectReference Include="..\core\Akka\Akka.csproj">
       <Project>{5deddf90-37f0-48d3-a0b0-a5cbd8a7e377}</Project>
       <Name>Akka</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\RTS.Commands.Interfaces\RTS.Commands.Interfaces.csproj">
+    <ProjectReference Include="..\CSBehavior\JW.Behavior.csproj">
+      <Project>{0af09cb2-bd5c-42a6-8de8-edac282dc486}</Project>
+      <Name>JW.Behavior</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RTS.Commands.Interfaces\RTS.Commands.Interfaces.csproj">
       <Project>{3c16668d-86d0-424b-97ab-af5868b6943e}</Project>
       <Name>RTS.Commands.Interfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\RTS.Core\RTS.Core.csproj">
+    <ProjectReference Include="..\RTS\RTS.Core\RTS.Core.csproj">
       <Project>{746b8f98-712d-4bef-9922-ac09ccaef5ad}</Project>
       <Name>RTS.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\RTS.Networking\RTS.ActorRequests\RTS.ActorRequests\RTS.ActorRequests.csproj">
-      <Project>{ea1a1449-1447-42cf-94f0-3db7d0c337aa}</Project>
-      <Name>RTS.ActorRequests</Name>
+    <ProjectReference Include="..\RTS\RTS.Data\DataStructures\RTS.DataStructures.csproj">
+      <Project>{2c6a9e1f-87d2-4aef-b872-8abad5b16cbe}</Project>
+      <Name>RTS.DataStructures</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\RTS.Networking\RTS.Commands\RTS.Commands.csproj">
+    <ProjectReference Include="..\RTS\RTS.Entities\RTS.Entities.Interfaces\RTS.Entities.Interfaces.csproj">
+      <Project>{3a4143da-d595-4d8b-b0fb-341a1b91b498}</Project>
+      <Name>RTS.Entities.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\RTS\RTS.Networking\RTS.Commands\RTS.Commands.csproj">
       <Project>{6fc5ce53-9259-47ba-b038-0df100079dd2}</Project>
       <Name>RTS.Commands</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\RTS.Networking\RTS.Networking.Helios\RTS.Networking.Helios.csproj">
-      <Project>{d6372d04-3c9c-4890-a797-671d443092b3}</Project>
-      <Name>RTS.Networking.Helios</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\RTS.Networking\RTS.Networking.Interfaces\RTS.Networking.Interfaces.csproj">
+    <ProjectReference Include="..\RTS\RTS.Networking\RTS.Networking.Interfaces\RTS.Networking.Interfaces.csproj">
       <Project>{a6aa7149-25c8-4dbe-ace9-98fdd7661d38}</Project>
       <Name>RTS.Networking.Interfaces</Name>
     </ProjectReference>

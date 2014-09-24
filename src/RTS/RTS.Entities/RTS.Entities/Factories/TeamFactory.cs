@@ -13,9 +13,10 @@ namespace RTS.Entities.Factories
     {
         private ActorSystem _context;
         private static long _teamId;
-        public TeamFactory(ActorSystem context)
+        public TeamFactory(ActorSystem context, int teamId = 0)
         {
             _context = context;
+            _teamId = teamId;
         }
     
         public ActorRef GetEntity(out long id)

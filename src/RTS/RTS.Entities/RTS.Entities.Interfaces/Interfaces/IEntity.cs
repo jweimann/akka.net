@@ -24,5 +24,7 @@ namespace RTS.Entities.Interfaces
         SpawnEntityData GetSpawnEntityData();
         void Destroy();
         IBrain Brain { get; }
+        long TeamId { get; }
+        bool IsAlive { get; set; }
     }
 }

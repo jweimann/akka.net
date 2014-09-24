@@ -125,14 +125,21 @@ namespace RTS.Entities.Units
 
             Console.WriteLine("SetTarget EntityId: " + entityId);
             var actorRef = await GetEntityById(entityId);
-            long targetTeam = await actorRef.Ask<long>(EntityRequest.GetTeam);
-            if (targetTeam == _entity.GetSpawnEntityData().TeamId)
+            if (actorRef != null)
             {
-                //return; // Don't target allies with a weapon. FriendlyFire Friendly Fire
+                long targetTeam = await actorRef.Ask<long>(EntityRequest.GetTeam);
+                if (targetTeam == _entity.GetSpawnEntityData().TeamId)
+                {
+                    //return; // Don't target allies with a weapon. FriendlyFire Friendly Fire
+                }
+                _targetEntityId = entityId;
+                _targetEntity = actorRef;
+                _targetEntityTeam = targetTeam;
             }
-            _targetEntityId = entityId;
-            _targetEntity = actorRef;
-            _targetEntityTeam = targetTeam;
+            else
+            {
+                Console.WriteLine("Weapon unable to find target.  EntityId: " + entityId);
+            }
         }
 
 
@@ -144,8 +151,14 @@ namespace RTS.Entities.Units
         {
             IActorContext context = _entity.GetActorContext() as IActorContext;
             ActorSelection targetActorSelection = context.ActorSelection("akka.tcp://MyServer@localhost:2020/user/Entity" + entityId);
-            var actorRef = await targetActorSelection.ResolveOne(TimeSpan.FromSeconds(1));
-            return actorRef;
+            try
+            {
+                var actorRef = await targetActorSelection.ResolveOne(TimeSpan.FromSeconds(1));
+                return actorRef;
+            } catch (ActorNotFoundException)
+            {
+                return null;
+            }
         }
         #endregion
 

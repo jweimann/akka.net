@@ -15,7 +15,7 @@ namespace RTS.Entities.Interfaces.Control
         void AddEntity(Int64 entityId, string name, Vector3 position, object sender);
         void RemoveEntity(long EntityId);
         void Update();
-        Dictionary<Int64, IMover> GetEntities();
+        Dictionary<Int64, IEntity> GetEntities();
 
         void SetBounds(Bounds Bounds);
 

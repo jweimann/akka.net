@@ -113,7 +113,6 @@
     <Compile Include="Server\SetPlayerCommand.cs" />
     <Compile Include="Client\SetClientPlayerInfoCommand.cs" />
     <Compile Include="Server\SetTeamCommand.cs" />
-    <Compile Include="SetDestinationCommand.cs" />
     <Compile Include="SpawnEntityCommand.cs" />
     <Compile Include="Stats\ModifyStatCommand.cs" />
     <Compile Include="Team\DestroyEntityCommand.cs" />

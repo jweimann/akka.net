@@ -106,6 +106,10 @@
       <Project>{5deddf90-37f0-48d3-a0b0-a5cbd8a7e377}</Project>
       <Name>Akka</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\RTS.AI\RTS.AI.csproj">
+      <Project>{1cd6ce59-0932-433d-9671-1e8c9a6cb369}</Project>
+      <Name>RTS.AI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\RTS.Commands.Interfaces\RTS.Commands.Interfaces.csproj">
       <Project>{3c16668d-86d0-424b-97ab-af5868b6943e}</Project>
       <Name>RTS.Commands.Interfaces</Name>
@@ -125,6 +129,10 @@
     <ProjectReference Include="..\..\RTS.Entities\RTS.Entities\RTS.Entities.csproj">
       <Project>{eb475b73-76de-43fe-9396-d22327cecaea}</Project>
       <Name>RTS.Entities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\RTS.Networking\RTS.Networking.Interfaces\RTS.Networking.Interfaces.csproj">
+      <Project>{a6aa7149-25c8-4dbe-ace9-98fdd7661d38}</Project>
+      <Name>RTS.Networking.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\RTS.Pathfinding\RTS.Pathfinding\RTS.Pathfinding.csproj">
       <Project>{df0fc799-0705-42e4-9981-3f433bcbb6d7}</Project>
